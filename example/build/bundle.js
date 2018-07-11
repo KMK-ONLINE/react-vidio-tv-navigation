@@ -822,113 +822,107 @@ var ReactSpatialNavigation = (function (exports) {
 	      if (tree[currentFocus].state.type === MATRIX) this.handleFocusInMatrixParent(direction);
 	    }
 	  }, {
-	    key: "handleFocusInVerticalParent",
-	    value: function handleFocusInVerticalParent(direction) {
-	      var _this2 = this;
-
+	    key: "canMoveToPreviousParent",
+	    value: function canMoveToPreviousParent() {
+	      return this.state.currentFocus > 0;
+	    }
+	  }, {
+	    key: "canMoveToNextParent",
+	    value: function canMoveToNextParent() {
 	      var _state3 = this.state,
 	          currentFocus = _state3.currentFocus,
 	          tree = _state3.tree;
 
-	      var parent = void 0;
+	      return currentFocus < tree.length - 1;
+	    }
+	  }, {
+	    key: "focusInParentOnInitEdge",
+	    value: function focusInParentOnInitEdge() {
+	      var _state4 = this.state,
+	          currentFocus = _state4.currentFocus,
+	          tree = _state4.tree;
 
-	      if (direction === LEFT) {
-	        if (currentFocus > 0) {
-	          this.quitFocusInParent(tree[currentFocus], tree[currentFocus].state.currentFocus);
-	          this.setState(function () {
-	            return Object.assign({}, _this2.state, {
-	              currentFocus: currentFocus - 1
-	            });
-	          }, function () {
-	            parent = _this2.state.tree[_this2.state.currentFocus];
-	            _this2.moveFocusInParent(parent, DEFAULT);
-	          });
+	      return tree[currentFocus].state.currentFocus === 0;
+	    }
+	  }, {
+	    key: "focusInParentOnFinalEdge",
+	    value: function focusInParentOnFinalEdge() {
+	      var _state5 = this.state,
+	          currentFocus = _state5.currentFocus,
+	          tree = _state5.tree;
+
+	      return tree[currentFocus].state.currentFocus === tree[currentFocus].state.tree.length - 1;
+	    }
+	  }, {
+	    key: "handleFocusInVerticalParent",
+	    value: function handleFocusInVerticalParent(direction) {
+	      var _state6 = this.state,
+	          currentFocus = _state6.currentFocus,
+	          tree = _state6.tree;
+
+
+	      if (direction === LEFT && this.canMoveToPreviousParent()) {
+	        this.moveFocusInTree(NEGATIVE);
+	      }
+
+	      if (direction === RIGHT && this.canMoveToNextParent()) {
+	        this.moveFocusInTree(POSITIVE);
+	      }
+
+	      if (direction === UP) {
+	        if (this.focusInParentOnInitEdge() && this.canMoveToPreviousParent()) {
+	          this.moveFocusInTree(NEGATIVE);
+	        } else {
+	          this.moveFocusInParent(tree[currentFocus], NEGATIVE);
 	        }
 	      }
 
-	      if (direction === RIGHT) {
-	        if (currentFocus < tree.length - 1) {
-	          this.quitFocusInParent(tree[currentFocus], tree[currentFocus].state.currentFocus);
-	          this.setState(function () {
-	            return Object.assign({}, _this2.state, { currentFocus: currentFocus + 1 });
-	          }, function () {
-	            parent = _this2.state.tree[_this2.state.currentFocus];
-	            _this2.moveFocusInParent(parent, DEFAULT);
-	          });
+	      if (direction === DOWN) {
+	        if (this.focusInParentOnFinalEdge() && this.canMoveToNextParent()) {
+	          this.moveFocusInTree(POSITIVE);
+	        } else {
+	          this.moveFocusInParent(tree[currentFocus], POSITIVE);
 	        }
-	      }
-
-	      if (direction === DOWN || direction === UP) {
-	        parent = tree[currentFocus];
-	        this.moveFocusInParent(parent, direction === DOWN ? POSITIVE : NEGATIVE);
 	      }
 	    }
 	  }, {
 	    key: "handleFocusInHorizontalParent",
 	    value: function handleFocusInHorizontalParent(direction) {
-	      var _this3 = this;
+	      var _state7 = this.state,
+	          currentFocus = _state7.currentFocus,
+	          tree = _state7.tree;
 
-	      var _state4 = this.state,
-	          currentFocus = _state4.currentFocus,
-	          tree = _state4.tree;
 
-	      var parent = void 0;
-
-	      if (direction === UP) {
-	        if (currentFocus > 0) {
-	          this.quitFocusInParent(tree[currentFocus], tree[currentFocus].state.currentFocus);
-	          this.setState(function () {
-	            return Object.assign({}, _this3.state, {
-	              currentFocus: currentFocus - 1
-	            });
-	          }, function () {
-	            parent = _this3.state.tree[_this3.state.currentFocus];
-	            _this3.moveFocusInParent(parent, DEFAULT);
-	          });
-	        }
+	      if (direction === UP && this.canMoveToPreviousParent()) {
+	        this.moveFocusInTree(NEGATIVE);
 	      }
 
-	      if (direction === DOWN) {
-	        if (currentFocus < tree.length - 1) {
-	          this.quitFocusInParent(tree[currentFocus], tree[currentFocus].state.currentFocus);
-	          this.setState(function () {
-	            return Object.assign({}, _this3.state, { currentFocus: currentFocus + 1 });
-	          }, function () {
-	            parent = _this3.state.tree[_this3.state.currentFocus];
-	            _this3.moveFocusInParent(parent, DEFAULT);
-	          });
-	        }
+	      if (direction === DOWN && this.canMoveToNextParent()) {
+	        this.moveFocusInTree(POSITIVE);
 	      }
 
 	      if (direction === LEFT) {
-	        parent = tree[currentFocus];
-
-	        if (parent.state.currentFocus === 0) {
-	          this.quitFocusInParent(tree[currentFocus], tree[currentFocus].state.currentFocus);
-	          this.setState(function () {
-	            return Object.assign({}, _this3.state, {
-	              currentFocus: currentFocus - 1
-	            });
-	          }, function () {
-	            parent = _this3.state.tree[_this3.state.currentFocus];
-	            _this3.moveFocusInParent(parent, DEFAULT);
-	          });
+	        if (this.focusInParentOnInitEdge() && this.canMoveToPreviousParent()) {
+	          this.moveFocusInTree(NEGATIVE);
 	        } else {
-	          this.moveFocusInParent(parent, direction === RIGHT ? POSITIVE : NEGATIVE);
+	          this.moveFocusInParent(tree[currentFocus], NEGATIVE);
 	        }
 	      }
 
-	      if (direction === RIGHT || direction === LEFT) {
-	        parent = tree[currentFocus];
-	        this.moveFocusInParent(parent, direction === RIGHT ? POSITIVE : NEGATIVE);
+	      if (direction === RIGHT) {
+	        if (this.focusInParentOnFinalEdge() && this.canMoveToNextParent()) {
+	          this.moveFocusInTree(POSITIVE);
+	        } else {
+	          this.moveFocusInParent(tree[currentFocus], POSITIVE);
+	        }
 	      }
 	    }
 	  }, {
 	    key: "handleFocusInMatrixParent",
 	    value: function handleFocusInMatrixParent(direction) {
-	      var _state5 = this.state,
-	          currentFocus = _state5.currentFocus,
-	          tree = _state5.tree;
+	      var _state8 = this.state,
+	          currentFocus = _state8.currentFocus,
+	          tree = _state8.tree;
 
 	      var parent = void 0;
 
@@ -979,14 +973,14 @@ var ReactSpatialNavigation = (function (exports) {
 	  }, {
 	    key: "setParentFocus",
 	    value: function setParentFocus(index) {
-	      var _this4 = this;
+	      var _this2 = this;
 
 	      this.setState(function () {
-	        return Object.assign({}, _this4.state, { currentFocus: index });
+	        return Object.assign({}, _this2.state, { currentFocus: index });
 	      }, function () {
-	        if (_this4.state.tree.length > 0) {
-	          var parent = _this4.state.tree[index];
-	          _this4.moveFocusInParent(parent, DEFAULT);
+	        if (_this2.state.tree.length > 0) {
+	          var parent = _this2.state.tree[index];
+	          _this2.moveFocusInParent(parent, DEFAULT);
 	        }
 	      });
 	    }
@@ -1016,6 +1010,26 @@ var ReactSpatialNavigation = (function (exports) {
 	          this.setFocusInParent(parent, threeshold ? currentFocus + threeshold : currentFocus + 1);
 	        }
 	      }
+	    }
+	  }, {
+	    key: "moveFocusInTree",
+	    value: function moveFocusInTree(direction) {
+	      var _this3 = this;
+
+	      var _state9 = this.state,
+	          currentFocus = _state9.currentFocus,
+	          tree = _state9.tree;
+
+	      var nextFocus = direction == NEGATIVE ? currentFocus - 1 : currentFocus + 1;
+	      this.quitFocusInParent(tree[currentFocus], tree[currentFocus].state.currentFocus);
+	      this.setState(function () {
+	        return Object.assign({}, _this3.state, {
+	          currentFocus: nextFocus
+	        });
+	      }, function () {
+	        var parent = _this3.state.tree[_this3.state.currentFocus];
+	        _this3.moveFocusInParent(parent, DEFAULT);
+	      });
 	    }
 	  }, {
 	    key: "setFocusInParent",

@@ -80,121 +80,81 @@ export default class Controller extends React.Component {
       this.handleFocusInMatrixParent(direction);
   }
 
+  canMoveToPreviousParent(): boolean {
+    return this.state.currentFocus > 0;
+  }
+
+  canMoveToNextParent(): boolean {
+    const { currentFocus, tree } = this.state;
+    return currentFocus < tree.length - 1;
+  }
+
+  focusInParentOnInitEdge(): boolean {
+    const { currentFocus, tree } = this.state;
+    return tree[currentFocus].state.currentFocus === 0;
+  }
+
+  focusInParentOnFinalEdge(): boolean {
+    const { currentFocus, tree } = this.state;
+    return (
+      tree[currentFocus].state.currentFocus ===
+      tree[currentFocus].state.tree.length - 1
+    );
+  }
+
   handleFocusInVerticalParent(direction: Direction) {
     const { currentFocus, tree } = this.state;
-    let parent;
 
-    if (direction === LEFT) {
-      if (currentFocus > 0) {
-        this.quitFocusInParent(
-          tree[currentFocus],
-          tree[currentFocus].state.currentFocus
-        );
-        this.setState(
-          () =>
-            Object.assign({}, this.state, {
-              currentFocus: currentFocus - 1
-            }),
-          () => {
-            parent = this.state.tree[this.state.currentFocus];
-            this.moveFocusInParent(parent, DEFAULT);
-          }
-        );
+    if (direction === LEFT && this.canMoveToPreviousParent()) {
+      this.moveFocusInTree(NEGATIVE);
+    }
+
+    if (direction === RIGHT && this.canMoveToNextParent()) {
+      this.moveFocusInTree(POSITIVE);
+    }
+
+    if (direction === UP) {
+      if (this.focusInParentOnInitEdge() && this.canMoveToPreviousParent()) {
+        this.moveFocusInTree(NEGATIVE);
+      } else {
+        this.moveFocusInParent(tree[currentFocus], NEGATIVE);
       }
     }
 
-    if (direction === RIGHT) {
-      if (currentFocus < tree.length - 1) {
-        this.quitFocusInParent(
-          tree[currentFocus],
-          tree[currentFocus].state.currentFocus
-        );
-        this.setState(
-          () =>
-            Object.assign({}, this.state, { currentFocus: currentFocus + 1 }),
-          () => {
-            parent = this.state.tree[this.state.currentFocus];
-            this.moveFocusInParent(parent, DEFAULT);
-          }
-        );
+    if (direction === DOWN) {
+      if (this.focusInParentOnFinalEdge() && this.canMoveToNextParent()) {
+        this.moveFocusInTree(POSITIVE);
+      } else {
+        this.moveFocusInParent(tree[currentFocus], POSITIVE);
       }
-    }
-
-    if (direction === DOWN || direction === UP) {
-      parent = tree[currentFocus];
-      this.moveFocusInParent(parent, direction === DOWN ? POSITIVE : NEGATIVE);
     }
   }
 
   handleFocusInHorizontalParent(direction: Direction) {
     const { currentFocus, tree } = this.state;
-    let parent;
 
-    if (direction === UP) {
-      if (currentFocus > 0) {
-        this.quitFocusInParent(
-          tree[currentFocus],
-          tree[currentFocus].state.currentFocus
-        );
-        this.setState(
-          () =>
-            Object.assign({}, this.state, {
-              currentFocus: currentFocus - 1
-            }),
-          () => {
-            parent = this.state.tree[this.state.currentFocus];
-            this.moveFocusInParent(parent, DEFAULT);
-          }
-        );
-      }
+    if (direction === UP && this.canMoveToPreviousParent()) {
+      this.moveFocusInTree(NEGATIVE);
     }
 
-    if (direction === DOWN) {
-      if (currentFocus < tree.length - 1) {
-        this.quitFocusInParent(
-          tree[currentFocus],
-          tree[currentFocus].state.currentFocus
-        );
-        this.setState(
-          () =>
-            Object.assign({}, this.state, { currentFocus: currentFocus + 1 }),
-          () => {
-            parent = this.state.tree[this.state.currentFocus];
-            this.moveFocusInParent(parent, DEFAULT);
-          }
-        );
-      }
+    if (direction === DOWN && this.canMoveToNextParent()) {
+      this.moveFocusInTree(POSITIVE);
     }
 
     if (direction === LEFT) {
-      parent = tree[currentFocus];
-
-      if (parent.state.currentFocus === 0) {
-        this.quitFocusInParent(
-          tree[currentFocus],
-          tree[currentFocus].state.currentFocus
-        );
-        this.setState(
-          () =>
-            Object.assign({}, this.state, {
-              currentFocus: currentFocus - 1
-            }),
-          () => {
-            parent = this.state.tree[this.state.currentFocus];
-            this.moveFocusInParent(parent, DEFAULT);
-          }
-        );
+      if (this.focusInParentOnInitEdge() && this.canMoveToPreviousParent()) {
+        this.moveFocusInTree(NEGATIVE);
       } else {
-        this.moveFocusInParent(
-          parent,
-          direction === RIGHT ? POSITIVE : NEGATIVE
-        );
+        this.moveFocusInParent(tree[currentFocus], NEGATIVE);
       }
     }
 
-    if (direction === RIGHT || direction === LEFT) {
-      parent = tree[currentFocus];
-      this.moveFocusInParent(parent, direction === RIGHT ? POSITIVE : NEGATIVE);
+    if (direction === RIGHT) {
+      if (this.focusInParentOnFinalEdge() && this.canMoveToNextParent()) {
+        this.moveFocusInTree(POSITIVE);
+      } else {
+        this.moveFocusInParent(tree[currentFocus], POSITIVE);
+      }
     }
   }
 
@@ -306,6 +266,26 @@ export default class Controller extends React.Component {
         );
       }
     }
+  }
+
+  moveFocusInTree(direction: NEGATIVE | POSITIVE) {
+    const { currentFocus, tree } = this.state;
+    const nextFocus =
+      direction == NEGATIVE ? currentFocus - 1 : currentFocus + 1;
+    this.quitFocusInParent(
+      tree[currentFocus],
+      tree[currentFocus].state.currentFocus
+    );
+    this.setState(
+      () =>
+        Object.assign({}, this.state, {
+          currentFocus: nextFocus
+        }),
+      () => {
+        const parent = this.state.tree[this.state.currentFocus];
+        this.moveFocusInParent(parent, DEFAULT);
+      }
+    );
   }
 
   setFocusInParent(parent: ParentType, focusIndex: number): void {
