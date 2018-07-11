@@ -1,0 +1,168 @@
+h1 {
+  font-size: 50px;
+}
+
+.matrix {
+  font: 14px Arial;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  width: 100%;
+  padding: 0;
+}
+
+.matrix span.focusable {
+  flex: 1 0 20%;
+  margin: 5px;
+  height: 100px;
+  border: 1px solid black;
+  text-align: center;
+  padding: 1%;
+  line-height: 20px;
+}
+
+.matrix span.focusable.focused {
+  flex: 1 0 20%;
+  margin: 5px;
+  height: 100px;
+  border: 1px solid black;
+  text-align: center;
+  padding: 1%;
+  line-height: 20px;
+  background: red;
+}
+
+.vertical-columns {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  width: 100%;
+  justify-content: space-around;
+}
+
+ul.vertical-focusable {
+  font: 14px Arial;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  width: 45%;
+  margin: auto;
+  padding: 0;
+}
+
+ul.vertical-focusable span.focusable {
+  flex: 1;
+  height: 100px;
+  border: 1px solid black;
+  text-align: center;
+  line-height: 20px;
+  margin-bottom: 10px;
+}
+
+ul.vertical-focusable span.focusable.focused {
+  flex: 1;
+  height: 100px;
+  border: 1px solid black;
+  text-align: center;
+  line-height: 20px;
+  background: red;
+  margin-bottom: 10px;
+}
+
+ul.horizontal-columns {
+  font: 14px Arial;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-content: space-between;
+  width: 100%;
+  padding: 0;
+}
+
+ul.horizontal-columns span.focusable {
+  flex: 1;
+  height: 100px;
+  border: 1px solid black;
+  text-align: center;
+  line-height: 20px;
+  margin: 5px;
+}
+
+ul.horizontal-columns span.focusable.focused {
+  flex: 1;
+  height: 100px;
+  border: 1px solid black;
+  text-align: center;
+  line-height: 20px;
+  background: red;
+  margin: 5px;
+}
+
+.horizontal-vertical {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  width: 100%;
+  justify-content: space-around;
+}
+
+ul.vertical-focusable-total {
+  font: 14px Arial;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  flex: 1;
+  margin: auto;
+  padding: 0;
+  margin-right: 10px;
+}
+
+ul.vertical-focusable-total span.focusable {
+  height: 100px;
+  border: 1px solid black;
+  text-align: center;
+  line-height: 20px;
+  margin-bottom: 10px;
+}
+
+ul.vertical-focusable-total span.focusable.focused {
+  height: 100px;
+  border: 1px solid black;
+  text-align: center;
+  line-height: 20px;
+  background: red;
+  margin-bottom: 10px;
+}
+
+.horizontal-section {
+  flex: 3;
+}
+
+ul.horizontal-columns-total {
+  font: 14px Arial;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  flex: 4;
+  margin: 10px;
+  padding: 0;
+}
+
+ul.horizontal-columns-total span.focusable {
+  flex: 4;
+  height: 100px;
+  border: 1px solid black;
+  text-align: center;
+  line-height: 20px;
+  margin-bottom: 10px;
+}
+
+ul.horizontal-columns-total span.focusable.focused {
+  flex: 4;
+  height: 100px;
+  border: 1px solid black;
+  text-align: center;
+  line-height: 20px;
+  background: red;
+  margin-bottom: 10px;
+}

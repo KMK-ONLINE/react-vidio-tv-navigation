@@ -1,0 +1,11 @@
+export const HORIZONTAL: FocusableType = "horizontal";
+export const VERTICAL: FocusableType = "vertical";
+export const MATRIX: FocusableType = "matrix";
+export const ENTER: string = "enter";
+export const UP: string = "up";
+export const DOWN: string = "down";
+export const LEFT: string = "left";
+export const RIGHT: string = "right";
+export const DEFAULT: string = "default";
+export const POSITIVE: string = "positive";
+export const NEGATIVE: string = "negative";
