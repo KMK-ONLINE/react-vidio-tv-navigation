@@ -131,4 +131,18 @@ describe("ParentWithContext tests", () => {
     spy.mockReset();
     spy.mockRestore();
   });
+
+  it("should not add the component to the context's tree if there is not context", () => {
+    const contextMock = {
+      tree: {
+        push() {}
+      }
+    };
+    const spy = jest.spyOn(contextMock.tree, "push");
+    shallow(<ParentWithContext />);
+    expect(spy).not.toHaveBeenCalled();
+    //TODO: test it has been called with the instance of the component
+    spy.mockReset();
+    spy.mockRestore();
+  });
 });

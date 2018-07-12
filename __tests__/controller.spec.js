@@ -98,6 +98,25 @@ describe("Controller tests", () => {
     });
 
     describe("When direction is NEGATIVE", () => {
+      describe("When currentFocus is <= 0", () => {
+        it("does not quit the focus from the child and sets the focus in the previous child", () => {
+          const setFocusInParentMock = jest.fn();
+          const quitFocusInParentMock = jest.fn();
+          const parent = shallow(<VerticalParent />);
+          const comp = mount(<Controller />);
+          const currentFocus = 0;
+          parent.setState({ currentFocus: currentFocus });
+          parent.state = parent.state(); // This is shit (facepalm)
+          comp.instance().setFocusInParent = setFocusInParentMock;
+          comp.instance().quitFocusInParent = quitFocusInParentMock;
+          comp.setState({ tree: [parent] });
+          comp.instance().moveFocusInParent(parent, NEGATIVE);
+          expect(quitFocusInParentMock).not.toHaveBeenCalled();
+          expect(setFocusInParentMock).not.toHaveBeenCalled();
+          comp.unmount();
+        });
+      });
+
       describe("When there is not threeshold", () => {
         it("quits the focus from the child and sets the focus in the previous child", () => {
           const setFocusInParentMock = jest.fn();
@@ -149,6 +168,26 @@ describe("Controller tests", () => {
     });
 
     describe("When direction is POSITIVE", () => {
+      describe("When currentFocus > number of childrem", () => {
+        it("quits the focus from the child and sets the focus in the next child", () => {
+          const setFocusInParentMock = jest.fn();
+          const quitFocusInParentMock = jest.fn();
+          const parent = shallow(<VerticalParent />);
+          const child = shallow(<Child />);
+          const comp = mount(<Controller />);
+          const currentFocus = 1;
+          parent.setState({ currentFocus: currentFocus, tree: [child, child] });
+          parent.state = parent.state(); // This is shit (facepalm)
+          comp.instance().setFocusInParent = setFocusInParentMock;
+          comp.instance().quitFocusInParent = quitFocusInParentMock;
+          comp.setState({ tree: [parent] });
+          comp.instance().moveFocusInParent(parent, POSITIVE);
+          expect(quitFocusInParentMock).not.toHaveBeenCalled();
+          expect(setFocusInParentMock).not.toHaveBeenCalled();
+          comp.unmount();
+        });
+      });
+
       describe("When there is not threeshold", () => {
         it("quits the focus from the child and sets the focus in the next child", () => {
           const setFocusInParentMock = jest.fn();
@@ -345,6 +384,24 @@ describe("Controller tests", () => {
         child.unmount();
       });
     });
+
+    describe("When onEnter is not defined on the component that has the focus", () => {
+      it("does not call onEnter", () => {
+        const onEnterMock = jest.fn();
+        const currentFocus = 0;
+        const comp = shallow(<Controller />);
+        const parent = shallow(<VerticalParent />);
+        const child = mount(<Child />);
+        child.props = child.props();
+        comp.setState({ currentFocus: currentFocus, tree: [parent] });
+        comp.state = comp.state();
+        parent.setState({ currentFocus: currentFocus, tree: [child, child] });
+        parent.state = parent.state();
+        comp.instance().handleEnter();
+        expect(onEnterMock).not.toHaveBeenCalled();
+        child.unmount();
+      });
+    });
   });
 
   describe("HandleFocus", () => {
@@ -421,6 +478,25 @@ describe("Controller tests", () => {
         expect(parent.state.currentFocus).toBe(currentFocus);
       });
     });
+
+    describe("When onFocus is not defined on the child with the focus", () => {
+      const onFocusMock = jest.fn();
+      const currentFocus = 0;
+      const focusIndex = 0;
+      const comp = shallow(<Controller />);
+      const parent = shallow(<VerticalParent />);
+      const child = mount(<Child />);
+      child.props = child.props();
+      comp.setState({ currentFocus: currentFocus, tree: [parent] });
+      comp.state = comp.state();
+      parent.setState({ currentFocus: currentFocus, tree: [child, child] });
+      parent.state = parent.state();
+      comp.instance().setFocusInParent(parent, focusIndex);
+
+      it("does not call onFocus", () => {
+        expect(onFocusMock).not.toHaveBeenCalled();
+      });
+    });
   });
 
   describe("QuitFocusInParent", () => {
@@ -445,6 +521,26 @@ describe("Controller tests", () => {
 
       it("sets the parent's currentFocus as focusIndex", () => {
         expect(parent.state.currentFocus).toBe(currentFocus);
+      });
+    });
+
+    describe("When onBlur is not defined on the child with the focus", () => {
+      const onBlurMock = jest.fn();
+      const currentFocus = 0;
+      const focusIndex = 0;
+      const comp = shallow(<Controller />);
+      const parent = shallow(<VerticalParent />);
+      const child = mount(<Child />);
+      child.props = child.props();
+      comp.setState({ currentFocus: currentFocus, tree: [parent] });
+      comp.state = comp.state();
+      parent.setState({ currentFocus: currentFocus, tree: [child, child] });
+      parent.state = parent.state();
+      comp.instance().quitFocusInParent(parent, focusIndex);
+
+      it("does not call onFocus", () => {
+        expect(onBlurMock).not.toHaveBeenCalled();
+        child.unmount();
       });
     });
   });
@@ -767,9 +863,26 @@ describe("Controller tests", () => {
       comp.instance().moveFocusInTree = moveFocusInTreeMock;
       comp.instance().handleFocusInMatrixParent(direction);
 
-      it("moves the focus to the next parent", () => {
+      it("moves the focus to the next parent if there is a next parent", () => {
         expect(moveFocusInTreeMock).toHaveBeenCalled();
         expect(moveFocusInTreeMock.mock.calls[0][0]).toBe(POSITIVE);
+      });
+    });
+
+    describe("When direction is RIGHT and the currentFocus is on the right edge", () => {
+      const moveFocusInTreeMock = jest.fn();
+      const currentFocus = 1;
+      const direction = RIGHT;
+      const comp = shallow(<Controller />);
+      const parent = shallow(<MatrixParent columns={10} rows={10} />);
+      parent.state = { currentFocus: 9, columns: 10, rows: 10 };
+      comp.setState({ currentFocus: currentFocus, tree: [parent, parent] });
+      comp.state = comp.state();
+      comp.instance().moveFocusInTree = moveFocusInTreeMock;
+      comp.instance().handleFocusInMatrixParent(direction);
+
+      it("does not move if there is not next parent", () => {
+        expect(moveFocusInTreeMock).not.toHaveBeenCalled();
       });
     });
 
@@ -808,9 +921,26 @@ describe("Controller tests", () => {
       comp.instance().moveFocusInTree = moveFocusInTreeMock;
       comp.instance().handleFocusInMatrixParent(direction);
 
-      it("moves the focus to the next parent", () => {
+      it("moves the focus to the previous parent", () => {
         expect(moveFocusInTreeMock).toHaveBeenCalled();
         expect(moveFocusInTreeMock.mock.calls[0][0]).toBe(NEGATIVE);
+      });
+    });
+
+    describe("When direction is LEFT and the currentFocus is on the left edge", () => {
+      const moveFocusInTreeMock = jest.fn();
+      const currentFocus = 0;
+      const direction = LEFT;
+      const comp = shallow(<Controller />);
+      const parent = shallow(<MatrixParent columns={10} rows={10} />);
+      parent.state = { currentFocus: 0, columns: 10, rows: 10 };
+      comp.setState({ currentFocus: currentFocus, tree: [parent, parent] });
+      comp.state = comp.state();
+      comp.instance().moveFocusInTree = moveFocusInTreeMock;
+      comp.instance().handleFocusInMatrixParent(direction);
+
+      it("does not move the focus to the previous parent if there is not previous parent", () => {
+        expect(moveFocusInTreeMock).not.toHaveBeenCalled();
       });
     });
 
@@ -858,6 +988,23 @@ describe("Controller tests", () => {
       });
     });
 
+    describe("When direction is DOWN and the currentFocus is on the final edge", () => {
+      const moveFocusInTreeMock = jest.fn();
+      const currentFocus = 1;
+      const direction = DOWN;
+      const comp = shallow(<Controller />);
+      const parent = shallow(<MatrixParent columns={10} rows={10} />);
+      parent.state = { currentFocus: 90, columns: 10, rows: 10 };
+      comp.setState({ currentFocus: currentFocus, tree: [parent, parent] });
+      comp.state = comp.state();
+      comp.instance().moveFocusInTree = moveFocusInTreeMock;
+      comp.instance().handleFocusInMatrixParent(direction);
+
+      it("does not move the focus to the next parent if there is not next parent", () => {
+        expect(moveFocusInTreeMock).not.toHaveBeenCalled();
+      });
+    });
+
     describe("When direction is UP", () => {
       const moveFocusInParentMock = jest.fn();
       const quitFocusInParentMock = jest.fn();
@@ -894,12 +1041,28 @@ describe("Controller tests", () => {
       comp.setState({ currentFocus: currentFocus, tree: [parent, parent] });
       comp.state = comp.state();
       comp.instance().moveFocusInTree = moveFocusInTreeMock;
-      console.log("hola");
       comp.instance().handleFocusInMatrixParent(direction);
 
       it("moves the focus to the previous parent", () => {
         expect(moveFocusInTreeMock).toHaveBeenCalled();
         expect(moveFocusInTreeMock.mock.calls[0][0]).toBe(NEGATIVE);
+      });
+    });
+
+    describe("When direction is UP and the currentFocus is on the init edge", () => {
+      const moveFocusInTreeMock = jest.fn();
+      const currentFocus = 0;
+      const direction = UP;
+      const comp = shallow(<Controller />);
+      const parent = shallow(<MatrixParent columns={10} rows={10} />);
+      parent.state = { currentFocus: 0, columns: 10, rows: 10 };
+      comp.setState({ currentFocus: currentFocus, tree: [parent, parent] });
+      comp.state = comp.state();
+      comp.instance().moveFocusInTree = moveFocusInTreeMock;
+      comp.instance().handleFocusInMatrixParent(direction);
+
+      it("does not move the focus to the previous parent if there is not previous parent", () => {
+        expect(moveFocusInTreeMock).not.toHaveBeenCalled();
       });
     });
   });
