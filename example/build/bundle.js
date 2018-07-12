@@ -802,9 +802,9 @@ var ReactSpatialNavigation = (function (exports) {
 	          tree = _state.tree;
 
 	      var parent = tree[currentFocus];
-	      var state = parent.state;
-	      if (state.tree[state.currentFocus].props.onEnter) {
-	        state.tree[state.currentFocus].props.onEnter();
+	      var parentState = parent.state;
+	      if (parentState.tree[parentState.currentFocus].props.onEnter) {
+	        return parentState.tree[parentState.currentFocus].props.onEnter();
 	      }
 	    }
 	  }, {
@@ -1034,13 +1034,17 @@ var ReactSpatialNavigation = (function (exports) {
 	  }, {
 	    key: "setFocusInParent",
 	    value: function setFocusInParent(parent, focusIndex) {
-	      if (parent.state.tree[focusIndex].props.onFocus) parent.state.tree[focusIndex].props.onFocus();
+	      if (parent.state.tree[focusIndex].props.onFocus) {
+	        parent.state.tree[focusIndex].props.onFocus();
+	      }
 	      parent.state.currentFocus = focusIndex;
 	    }
 	  }, {
 	    key: "quitFocusInParent",
 	    value: function quitFocusInParent(parent, focusIndex) {
-	      if (parent.state.tree[focusIndex].props.onBlur) parent.state.tree[focusIndex].props.onBlur();
+	      if (parent.state.tree[focusIndex].props.onBlur) {
+	        parent.state.tree[focusIndex].props.onBlur();
+	      }
 	      parent.state.currentFocus = focusIndex;
 	    }
 	  }, {

@@ -61,9 +61,9 @@ export default class Controller extends React.Component {
   handleEnter(): void {
     const { currentFocus, tree } = this.state;
     const parent = tree[currentFocus];
-    const state = parent.state;
-    if (state.tree[state.currentFocus].props.onEnter) {
-      state.tree[state.currentFocus].props.onEnter();
+    const parentState = parent.state;
+    if (parentState.tree[parentState.currentFocus].props.onEnter) {
+      return parentState.tree[parentState.currentFocus].props.onEnter();
     }
   }
 
@@ -289,14 +289,16 @@ export default class Controller extends React.Component {
   }
 
   setFocusInParent(parent: ParentType, focusIndex: number): void {
-    if (parent.state.tree[focusIndex].props.onFocus)
+    if (parent.state.tree[focusIndex].props.onFocus) {
       parent.state.tree[focusIndex].props.onFocus();
+    }
     parent.state.currentFocus = focusIndex;
   }
 
   quitFocusInParent(parent: ParentType, focusIndex: number): void {
-    if (parent.state.tree[focusIndex].props.onBlur)
+    if (parent.state.tree[focusIndex].props.onBlur) {
       parent.state.tree[focusIndex].props.onBlur();
+    }
     parent.state.currentFocus = focusIndex;
   }
 

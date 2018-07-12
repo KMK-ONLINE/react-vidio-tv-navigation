@@ -690,21 +690,44 @@ describe("Controller tests", () => {
     });
 
     describe("When direction is LEFT", () => {
-      const moveFocusInParentMock = jest.fn();
-      const currentFocus = 0;
-      const direction = LEFT;
-      const comp = shallow(<Controller />);
-      const parent = shallow(<HorizontalParent />);
-      parent.state = { currentFocus: 0 };
-      comp.setState({ currentFocus: currentFocus, tree: [parent, parent] });
-      comp.state = comp.state();
-      comp.instance().moveFocusInParent = moveFocusInParentMock;
-      comp.instance().handleFocusInHorizontalParent(direction);
+      describe("and it's in the first parent or it's not in the first element", () => {
+        const moveFocusInParentMock = jest.fn();
+        const currentFocus = 0;
+        const direction = LEFT;
+        const comp = shallow(<Controller />);
+        const parent = shallow(<HorizontalParent />);
+        parent.state = { currentFocus: 0 };
+        comp.setState({ currentFocus: currentFocus, tree: [parent, parent] });
+        comp.state = comp.state();
+        comp.instance().moveFocusInParent = moveFocusInParentMock;
+        comp.instance().handleFocusInHorizontalParent(direction);
 
-      it("moves the focus to the current focus", () => {
-        expect(moveFocusInParentMock).toHaveBeenCalled();
-        expect(moveFocusInParentMock.mock.calls[0][0]).toBe(parent);
-        expect(moveFocusInParentMock.mock.calls[0][1]).toBe(NEGATIVE);
+        it("moves the focus to the current focus", () => {
+          expect(moveFocusInParentMock).toHaveBeenCalled();
+          expect(moveFocusInParentMock.mock.calls[0][0]).toBe(parent);
+          expect(moveFocusInParentMock.mock.calls[0][1]).toBe(NEGATIVE);
+        });
+      });
+
+      describe("and it's not in the first parent and it's in the first element", () => {
+        const moveFocusInTreeMock = jest.fn();
+        const currentFocus = 1;
+        const direction = LEFT;
+        const comp = shallow(<Controller />);
+        const parent1 = shallow(<VerticalParent />);
+        const parent2 = shallow(<HorizontalParent />);
+        const children = shallow(<Child />);
+        parent1.state = { currentFocus: 0, tree: [children, children] };
+        parent2.state = { currentFocus: 0, tree: [children, children] };
+        comp.setState({ currentFocus: currentFocus, tree: [parent1, parent2] });
+        comp.state = comp.state();
+        comp.instance().moveFocusInTree = moveFocusInTreeMock;
+        comp.instance().handleFocusInHorizontalParent(direction);
+
+        it("moves the focus to the next parent", () => {
+          expect(moveFocusInTreeMock).toHaveBeenCalled();
+          expect(moveFocusInTreeMock.mock.calls[0][0]).toBe(NEGATIVE);
+        });
       });
     });
   });
