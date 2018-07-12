@@ -924,37 +924,41 @@ var ReactSpatialNavigation = (function (exports) {
 	          currentFocus = _state8.currentFocus,
 	          tree = _state8.tree;
 
-	      var parent = void 0;
+	      var parent = tree[currentFocus];
 
 	      if (direction === RIGHT) {
-	        parent = tree[currentFocus];
 	        if (parent.state.currentFocus % parent.state.columns !== parent.state.columns - 1) {
 	          this.quitFocusInParent(tree[currentFocus], tree[currentFocus].state.currentFocus);
 	          this.moveFocusInParent(parent, POSITIVE);
+	        } else if (this.canMoveToNextParent()) {
+	          this.moveFocusInTree(POSITIVE);
 	        }
 	      }
 
 	      if (direction === LEFT) {
-	        parent = tree[currentFocus];
 	        if (parent.state.currentFocus % parent.state.columns !== 0) {
 	          this.quitFocusInParent(tree[currentFocus], tree[currentFocus].state.currentFocus);
 	          this.moveFocusInParent(parent, NEGATIVE);
+	        } else if (this.canMoveToPreviousParent()) {
+	          this.moveFocusInTree(NEGATIVE);
 	        }
 	      }
 
 	      if (direction === DOWN) {
-	        parent = tree[currentFocus];
-	        if (parent.state.columns * parent.state.columns - parent.state.currentFocus > parent.state.columns) {
+	        if (parent.state.columns * parent.state.rows - parent.state.currentFocus > parent.state.columns) {
 	          this.quitFocusInParent(tree[currentFocus], tree[currentFocus].state.currentFocus);
 	          this.moveFocusInParent(parent, POSITIVE, parent.state.columns);
+	        } else if (this.canMoveToNextParent()) {
+	          this.moveFocusInTree(POSITIVE);
 	        }
 	      }
 
 	      if (direction === UP) {
-	        parent = tree[currentFocus];
 	        if (parent.state.currentFocus - parent.state.columns >= 0) {
 	          this.quitFocusInParent(tree[currentFocus], tree[currentFocus].state.currentFocus);
 	          this.moveFocusInParent(parent, NEGATIVE, parent.state.columns);
+	        } else if (this.canMoveToPreviousParent()) {
+	          this.moveFocusInTree(NEGATIVE);
 	        }
 	      }
 	    }
@@ -1338,7 +1342,147 @@ var ReactSpatialNavigation = (function (exports) {
 	        react.createElement(
 	          "h1",
 	          null,
+	          " Vertical Columns - By default, it moves up or down the focus"
+	        ),
+	        react.createElement(
+	          "p",
+	          null,
+	          "If we move out of the scope of each list, it moves to the next or previous parent ( if present, if not, nothing happens )"
+	        ),
+	        react.createElement(
+	          "p",
+	          null,
+	          "Also, by clicking left or right, it moves to the next or previous parent ( if present, if not, nothing happens )"
+	        ),
+	        react.createElement(
+	          "div",
+	          { className: "vertical-columns" },
+	          react.createElement(
+	            VerticalParent,
+	            { className: "vertical-focusable" },
+	            react.createElement(Item, null),
+	            react.createElement(Item, null)
+	          ),
+	          react.createElement(
+	            VerticalParent,
+	            { className: "vertical-focusable" },
+	            react.createElement(Item, null),
+	            react.createElement(Item, null),
+	            react.createElement(
+	              "span",
+	              { className: "focusable" },
+	              react.createElement(
+	                "span",
+	                null,
+	                " I am not allowed to be focused "
+	              ),
+	              react.createElement(
+	                "span",
+	                null,
+	                " This item is not part of the Matrix "
+	              )
+	            ),
+	            react.createElement(Item, null)
+	          )
+	        ),
+	        react.createElement(
+	          "h1",
+	          null,
+	          "Horizontal Columns - By default, it moves left or right the focus"
+	        ),
+	        react.createElement(
+	          "p",
+	          null,
+	          "If we move out of the scope of each list, it moves to the next or previous parent ( if present, if not, nothing happens )"
+	        ),
+	        react.createElement(
+	          "p",
+	          null,
+	          "Also, by clicking up or down, it moves to the next or previous parent ( if present, if not, nothing happens )"
+	        ),
+	        react.createElement(
+	          HorizontalParent,
+	          { className: "horizontal-columns" },
+	          react.createElement(Item, null),
+	          react.createElement(Item, null)
+	        ),
+	        react.createElement(
+	          HorizontalParent,
+	          { className: "horizontal-columns" },
+	          react.createElement(Item, null),
+	          react.createElement(Item, null),
+	          react.createElement(
+	            "span",
+	            { className: "focusable" },
+	            react.createElement(
+	              "p",
+	              null,
+	              " I am not allowed to be focused "
+	            ),
+	            react.createElement(
+	              "p",
+	              null,
+	              " lorem ipsum "
+	            )
+	          ),
+	          react.createElement(Item, null)
+	        ),
+	        react.createElement(
+	          HorizontalParent,
+	          { className: "horizontal-columns" },
+	          react.createElement(Item, null),
+	          react.createElement(
+	            "span",
+	            { className: "focusable" },
+	            react.createElement(
+	              "p",
+	              null,
+	              " I am not allowed to be focused "
+	            ),
+	            react.createElement(
+	              "p",
+	              null,
+	              " lorem ipsum "
+	            )
+	          ),
+	          react.createElement(Item, null),
+	          react.createElement(Item, null)
+	        ),
+	        react.createElement(
+	          "h1",
+	          null,
+	          " Matrix - By default, it moves the focus in all directions "
+	        ),
+	        react.createElement(
+	          "p",
+	          null,
+	          "If we move out of the matrix scope, it moves the focus to the previous or next parent ( below or above in this example ) ( if present, if not, nothing happens )"
+	        ),
+	        react.createElement(
+	          MatrixParent,
+	          { columns: 4, rows: 3, className: "matrix" },
+	          react.createElement(Item, null),
+	          react.createElement(Item, null),
+	          react.createElement(Item, null),
+	          react.createElement(Item, null),
+	          react.createElement(Item, null),
+	          react.createElement(Item, null),
+	          react.createElement(Item, null),
+	          react.createElement(Item, null),
+	          react.createElement(Item, null),
+	          react.createElement(Item, null),
+	          react.createElement(Item, null),
+	          react.createElement(Item, null)
+	        ),
+	        react.createElement(
+	          "h1",
+	          null,
 	          " Horizontal Columns + Vertical Columns "
+	        ),
+	        react.createElement(
+	          "h2",
+	          null,
+	          " Example merging different kind of parents "
 	        ),
 	        react.createElement(
 	          "div",
@@ -1401,116 +1545,6 @@ var ReactSpatialNavigation = (function (exports) {
 	              react.createElement(Item, null)
 	            )
 	          )
-	        ),
-	        react.createElement(
-	          "h1",
-	          null,
-	          " Vertical Columns "
-	        ),
-	        react.createElement(
-	          "div",
-	          { className: "vertical-columns" },
-	          react.createElement(
-	            VerticalParent,
-	            { className: "vertical-focusable" },
-	            react.createElement(Item, null),
-	            react.createElement(Item, null)
-	          ),
-	          react.createElement(
-	            VerticalParent,
-	            { className: "vertical-focusable" },
-	            react.createElement(Item, null),
-	            react.createElement(Item, null),
-	            react.createElement(
-	              "span",
-	              { className: "focusable" },
-	              react.createElement(
-	                "span",
-	                null,
-	                " I am not allowed to be focused "
-	              ),
-	              react.createElement(
-	                "span",
-	                null,
-	                " This item is not part of the Matrix "
-	              )
-	            ),
-	            react.createElement(Item, null)
-	          )
-	        ),
-	        react.createElement(
-	          "h1",
-	          null,
-	          " Horizontal Columns "
-	        ),
-	        react.createElement(
-	          HorizontalParent,
-	          { className: "horizontal-columns" },
-	          react.createElement(Item, null),
-	          react.createElement(Item, null)
-	        ),
-	        react.createElement(
-	          HorizontalParent,
-	          { className: "horizontal-columns" },
-	          react.createElement(Item, null),
-	          react.createElement(Item, null),
-	          react.createElement(
-	            "span",
-	            { className: "focusable" },
-	            react.createElement(
-	              "p",
-	              null,
-	              " I am not allowed to be focused "
-	            ),
-	            react.createElement(
-	              "p",
-	              null,
-	              " lorem ipsum "
-	            )
-	          ),
-	          react.createElement(Item, null)
-	        ),
-	        react.createElement(
-	          HorizontalParent,
-	          { className: "horizontal-columns" },
-	          react.createElement(Item, null),
-	          react.createElement(
-	            "span",
-	            { className: "focusable" },
-	            react.createElement(
-	              "p",
-	              null,
-	              " I am not allowed to be focused "
-	            ),
-	            react.createElement(
-	              "p",
-	              null,
-	              " lorem ipsum "
-	            )
-	          ),
-	          react.createElement(Item, null),
-	          react.createElement(Item, null)
-	        ),
-	        react.createElement(
-	          "h1",
-	          null,
-	          " Matrix "
-	        ),
-	        react.createElement(
-	          MatrixParent,
-	          { columns: 4, rows: 3, className: "matrix" },
-	          react.createElement(Item, null),
-	          react.createElement(Item, null),
-	          react.createElement(Item, null),
-	          react.createElement(Item, null),
-	          react.createElement(Item, null),
-	          react.createElement(Item, null),
-	          react.createElement(Item, null),
-	          react.createElement(Item, null),
-	          react.createElement(Item, null),
-	          react.createElement(Item, null),
-	          react.createElement(Item, null),
-	          react.createElement(Item, null)
 	        )
 	      );
 	    }

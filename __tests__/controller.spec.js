@@ -6,7 +6,6 @@ import {
   HORIZONTAL,
   VERTICAL,
   MATRIX,
-  ENTER,
   DEFAULT,
   DOWN,
   RIGHT,
@@ -733,7 +732,7 @@ describe("Controller tests", () => {
   });
 
   describe("HandleFocusInMatrixParent", () => {
-    describe("When direction is RIGHT and the currentFocus in not on the right edge", () => {
+    describe("When direction is RIGHT and the currentFocus is not on the right edge", () => {
       const quitFocusInParentMock = jest.fn();
       const moveFocusInParentMock = jest.fn();
       const currentFocus = 1;
@@ -753,6 +752,24 @@ describe("Controller tests", () => {
 
       it("moves the focus to the current focus", () => {
         expect(moveFocusInParentMock).toHaveBeenCalled();
+      });
+    });
+
+    describe("When direction is RIGHT and the currentFocus is on the right edge", () => {
+      const moveFocusInTreeMock = jest.fn();
+      const currentFocus = 0;
+      const direction = RIGHT;
+      const comp = shallow(<Controller />);
+      const parent = shallow(<MatrixParent columns={10} rows={10} />);
+      parent.state = { currentFocus: 9, columns: 10, rows: 10 };
+      comp.setState({ currentFocus: currentFocus, tree: [parent, parent] });
+      comp.state = comp.state();
+      comp.instance().moveFocusInTree = moveFocusInTreeMock;
+      comp.instance().handleFocusInMatrixParent(direction);
+
+      it("moves the focus to the next parent", () => {
+        expect(moveFocusInTreeMock).toHaveBeenCalled();
+        expect(moveFocusInTreeMock.mock.calls[0][0]).toBe(POSITIVE);
       });
     });
 
@@ -776,6 +793,24 @@ describe("Controller tests", () => {
 
       it("moves the focus to the current focus", () => {
         expect(moveFocusInParentMock).toHaveBeenCalled();
+      });
+    });
+
+    describe("When direction is LEFT and the currentFocus is on the left edge", () => {
+      const moveFocusInTreeMock = jest.fn();
+      const currentFocus = 1;
+      const direction = LEFT;
+      const comp = shallow(<Controller />);
+      const parent = shallow(<MatrixParent columns={10} rows={10} />);
+      parent.state = { currentFocus: 0, columns: 10, rows: 10 };
+      comp.setState({ currentFocus: currentFocus, tree: [parent, parent] });
+      comp.state = comp.state();
+      comp.instance().moveFocusInTree = moveFocusInTreeMock;
+      comp.instance().handleFocusInMatrixParent(direction);
+
+      it("moves the focus to the next parent", () => {
+        expect(moveFocusInTreeMock).toHaveBeenCalled();
+        expect(moveFocusInTreeMock.mock.calls[0][0]).toBe(NEGATIVE);
       });
     });
 
@@ -805,6 +840,24 @@ describe("Controller tests", () => {
       });
     });
 
+    describe("When direction is DOWN and the currentFocus is on the final edge", () => {
+      const moveFocusInTreeMock = jest.fn();
+      const currentFocus = 0;
+      const direction = DOWN;
+      const comp = shallow(<Controller />);
+      const parent = shallow(<MatrixParent columns={10} rows={10} />);
+      parent.state = { currentFocus: 90, columns: 10, rows: 10 };
+      comp.setState({ currentFocus: currentFocus, tree: [parent, parent] });
+      comp.state = comp.state();
+      comp.instance().moveFocusInTree = moveFocusInTreeMock;
+      comp.instance().handleFocusInMatrixParent(direction);
+
+      it("moves the focus to the next parent", () => {
+        expect(moveFocusInTreeMock).toHaveBeenCalled();
+        expect(moveFocusInTreeMock.mock.calls[0][0]).toBe(POSITIVE);
+      });
+    });
+
     describe("When direction is UP", () => {
       const moveFocusInParentMock = jest.fn();
       const quitFocusInParentMock = jest.fn();
@@ -828,6 +881,25 @@ describe("Controller tests", () => {
         expect(moveFocusInParentMock).toHaveBeenCalled();
         expect(moveFocusInParentMock.mock.calls[0][0]).toBe(parent);
         expect(moveFocusInParentMock.mock.calls[0][1]).toBe(NEGATIVE);
+      });
+    });
+
+    describe("When direction is UP and the currentFocus is on the init edge", () => {
+      const moveFocusInTreeMock = jest.fn();
+      const currentFocus = 1;
+      const direction = UP;
+      const comp = shallow(<Controller />);
+      const parent = shallow(<MatrixParent columns={10} rows={10} />);
+      parent.state = { currentFocus: 0, columns: 10, rows: 10 };
+      comp.setState({ currentFocus: currentFocus, tree: [parent, parent] });
+      comp.state = comp.state();
+      comp.instance().moveFocusInTree = moveFocusInTreeMock;
+      console.log("hola");
+      comp.instance().handleFocusInMatrixParent(direction);
+
+      it("moves the focus to the previous parent", () => {
+        expect(moveFocusInTreeMock).toHaveBeenCalled();
+        expect(moveFocusInTreeMock.mock.calls[0][0]).toBe(NEGATIVE);
       });
     });
   });

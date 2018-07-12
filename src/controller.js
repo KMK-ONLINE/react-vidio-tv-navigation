@@ -160,10 +160,9 @@ export default class Controller extends React.Component {
 
   handleFocusInMatrixParent(direction: Direction) {
     const { currentFocus, tree } = this.state;
-    let parent;
+    const parent = tree[currentFocus];
 
     if (direction === RIGHT) {
-      parent = tree[currentFocus];
       if (
         parent.state.currentFocus % parent.state.columns !==
         parent.state.columns - 1
@@ -173,25 +172,26 @@ export default class Controller extends React.Component {
           tree[currentFocus].state.currentFocus
         );
         this.moveFocusInParent(parent, POSITIVE);
+      } else if (this.canMoveToNextParent()) {
+        this.moveFocusInTree(POSITIVE);
       }
     }
 
     if (direction === LEFT) {
-      parent = tree[currentFocus];
       if (parent.state.currentFocus % parent.state.columns !== 0) {
         this.quitFocusInParent(
           tree[currentFocus],
           tree[currentFocus].state.currentFocus
         );
         this.moveFocusInParent(parent, NEGATIVE);
+      } else if (this.canMoveToPreviousParent()) {
+        this.moveFocusInTree(NEGATIVE);
       }
     }
 
     if (direction === DOWN) {
-      parent = tree[currentFocus];
       if (
-        parent.state.columns * parent.state.columns -
-          parent.state.currentFocus >
+        parent.state.columns * parent.state.rows - parent.state.currentFocus >
         parent.state.columns
       ) {
         this.quitFocusInParent(
@@ -199,17 +199,20 @@ export default class Controller extends React.Component {
           tree[currentFocus].state.currentFocus
         );
         this.moveFocusInParent(parent, POSITIVE, parent.state.columns);
+      } else if (this.canMoveToNextParent()) {
+        this.moveFocusInTree(POSITIVE);
       }
     }
 
     if (direction === UP) {
-      parent = tree[currentFocus];
       if (parent.state.currentFocus - parent.state.columns >= 0) {
         this.quitFocusInParent(
           tree[currentFocus],
           tree[currentFocus].state.currentFocus
         );
         this.moveFocusInParent(parent, NEGATIVE, parent.state.columns);
+      } else if (this.canMoveToPreviousParent()) {
+        this.moveFocusInTree(NEGATIVE);
       }
     }
   }
