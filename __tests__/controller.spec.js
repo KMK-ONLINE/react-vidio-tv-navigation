@@ -472,6 +472,7 @@ describe("Controller tests", () => {
 
       it("calls onFocus", () => {
         expect(onFocusMock).toHaveBeenCalled();
+        expect(onFocusMock.mock.calls[0][0]).toBe(focusIndex);
         child.unmount();
       });
     });
@@ -559,6 +560,7 @@ describe("Controller tests", () => {
 
       it("calls onBlur", () => {
         expect(onBlurMock).toHaveBeenCalled();
+        expect(onBlurMock.mock.calls[0][0]).toBe(focusIndex);
         child.unmount();
       });
     });

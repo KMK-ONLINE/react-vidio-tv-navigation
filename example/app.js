@@ -46,12 +46,12 @@ export class Item extends React.Component {
 }
 
 class App extends React.Component {
-  focus() {
-    alert("focus");
+  focus(index) {
+    alert("Focus on element " + index);
   }
 
-  blur() {
-    alert("blur");
+  blur(index) {
+    alert("Blur on element " + index);
   }
   render() {
     return (
@@ -70,8 +70,8 @@ class App extends React.Component {
         </p>
         <div className={"vertical-columns"}>
           <VerticalParent
-            onFocus={() => this.focus()}
-            onBlur={() => this.blur()}
+            onFocus={index => this.focus(index)}
+            onBlur={index => this.blur(index)}
             className={"vertical-focusable"}
           >
             <Item />

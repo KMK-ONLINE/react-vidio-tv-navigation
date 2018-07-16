@@ -576,7 +576,7 @@
 	    key: "setFocusInParent",
 	    value: function setFocusInParent(parent, focusIndex) {
 	      if (parent.props.onFocus) {
-	        parent.props.onFocus();
+	        parent.props.onFocus(focusIndex);
 	      }
 	      if (parent.state.tree[focusIndex].props.onFocus) {
 	        parent.state.tree[focusIndex].props.onFocus();
@@ -587,7 +587,7 @@
 	    key: "quitFocusInParent",
 	    value: function quitFocusInParent(parent, focusIndex) {
 	      if (parent.props.onBlur) {
-	        parent.props.onBlur();
+	        parent.props.onBlur(focusIndex);
 	      }
 	      if (parent.state.tree[focusIndex].props.onBlur) {
 	        parent.state.tree[focusIndex].props.onBlur();

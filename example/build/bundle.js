@@ -1039,7 +1039,7 @@ var ReactSpatialNavigation = (function (exports) {
 	    key: "setFocusInParent",
 	    value: function setFocusInParent(parent, focusIndex) {
 	      if (parent.props.onFocus) {
-	        parent.props.onFocus();
+	        parent.props.onFocus(focusIndex);
 	      }
 	      if (parent.state.tree[focusIndex].props.onFocus) {
 	        parent.state.tree[focusIndex].props.onFocus();
@@ -1050,7 +1050,7 @@ var ReactSpatialNavigation = (function (exports) {
 	    key: "quitFocusInParent",
 	    value: function quitFocusInParent(parent, focusIndex) {
 	      if (parent.props.onBlur) {
-	        parent.props.onBlur();
+	        parent.props.onBlur(focusIndex);
 	      }
 	      if (parent.state.tree[focusIndex].props.onBlur) {
 	        parent.state.tree[focusIndex].props.onBlur();
@@ -1345,13 +1345,13 @@ var ReactSpatialNavigation = (function (exports) {
 
 	  createClass(App, [{
 	    key: "focus",
-	    value: function focus() {
-	      alert("focus");
+	    value: function focus(index) {
+	      alert("Focus on element " + index);
 	    }
 	  }, {
 	    key: "blur",
-	    value: function blur() {
-	      alert("blur");
+	    value: function blur(index) {
+	      alert("Blur on element " + index);
 	    }
 	  }, {
 	    key: "render",
@@ -1384,11 +1384,11 @@ var ReactSpatialNavigation = (function (exports) {
 	          react.createElement(
 	            VerticalParent,
 	            {
-	              onFocus: function onFocus() {
-	                return _this4.focus();
+	              onFocus: function onFocus(index) {
+	                return _this4.focus(index);
 	              },
-	              onBlur: function onBlur() {
-	                return _this4.blur();
+	              onBlur: function onBlur(index) {
+	                return _this4.blur(index);
 	              },
 	              className: "vertical-focusable"
 	            },
