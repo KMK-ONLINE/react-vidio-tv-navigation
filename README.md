@@ -1,6 +1,6 @@
 # React Spatial Navigation
 
-This project aims to build a navigation tooll based on React. 
+This project aims to build a navigation tool based on React. 
 
 # How to use
 
@@ -187,7 +187,7 @@ Let's say the focus is on the child 5. There are 4 possible scenarios:
 
 ## Joining multiple different Parents
 
-By can combine different in order to try to represent the best navigation experience. Let's say we have the following structure:
+It's possible to combine different kind of parents in order to try to represent the best navigation experience. Let's say we have the following structure:
 
 
     VerticalParent 1  --------  MatrixParent 2    
