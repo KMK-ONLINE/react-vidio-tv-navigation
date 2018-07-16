@@ -49,7 +49,10 @@ class App extends React.Component {
   render() {
     return (
       <Controller>
-        <h1> Vertical Columns - By default, it moves up or down the focus</h1>
+        <h1>
+          {" "}
+          Vertical Columns - By default, it moves the focus either up or down{" "}
+        </h1>
         <p>
           If we move out of the scope of each list, it moves to the next or
           previous parent ( if present, if not, nothing happens )
@@ -74,7 +77,9 @@ class App extends React.Component {
           </VerticalParent>
         </div>
         <h1>
-          Horizontal Columns - By default, it moves left or right the focus
+          {" "}
+          Horizontal Columns - By default, it moves the focus either left or
+          right{" "}
         </h1>
         <p>
           If we move out of the scope of each list, it moves to the next or
