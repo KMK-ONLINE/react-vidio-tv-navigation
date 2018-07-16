@@ -292,6 +292,9 @@ export default class Controller extends React.Component {
   }
 
   setFocusInParent(parent: ParentType, focusIndex: number): void {
+    if (parent.props.onFocus) {
+      parent.props.onFocus();
+    }
     if (parent.state.tree[focusIndex].props.onFocus) {
       parent.state.tree[focusIndex].props.onFocus();
     }
@@ -299,6 +302,9 @@ export default class Controller extends React.Component {
   }
 
   quitFocusInParent(parent: ParentType, focusIndex: number): void {
+    if (parent.props.onBlur) {
+      parent.props.onBlur();
+    }
     if (parent.state.tree[focusIndex].props.onBlur) {
       parent.state.tree[focusIndex].props.onBlur();
     }

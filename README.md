@@ -81,10 +81,20 @@ export class Item extends React.Component {
 }
 
 class App extends React.Component {
+  focus() {
+    alert("focus");
+  }
+
+  blur() {
+    alert("blur");
+  }
   render() {
     return (
       <Controller>
-        <h1> Vertical Columns - it moves the focus either up or down </h1>
+        <h1>
+          {" "}
+          Vertical Columns - By default, it moves the focus either up or down{" "}
+        </h1>
         <p>
           If we move out of the scope of each list, it moves to the next or
           previous parent ( if present, if not, nothing happens )
@@ -94,7 +104,11 @@ class App extends React.Component {
           parent ( if present, if not, nothing happens )
         </p>
         <div className={"vertical-columns"}>
-          <VerticalParent className={"vertical-focusable"}>
+          <VerticalParent
+            onFocus={() => this.focus()}
+            onBlur={() => this.blur()}
+            className={"vertical-focusable"}
+          >
             <Item />
             <Item />
           </VerticalParent>

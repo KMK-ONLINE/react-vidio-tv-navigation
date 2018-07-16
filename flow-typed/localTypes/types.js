@@ -32,7 +32,9 @@ declare type ParentProps = {
   context: ParentType,
   focusableType: FocusableType,
   rows: number,
-  columns: number
+  columns: number,
+  onFocus: () => void,
+  onBlur: () => void
 };
 
 declare type ControllerState = {

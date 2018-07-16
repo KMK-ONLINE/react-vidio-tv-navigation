@@ -1038,6 +1038,9 @@ var ReactSpatialNavigation = (function (exports) {
 	  }, {
 	    key: "setFocusInParent",
 	    value: function setFocusInParent(parent, focusIndex) {
+	      if (parent.props.onFocus) {
+	        parent.props.onFocus();
+	      }
 	      if (parent.state.tree[focusIndex].props.onFocus) {
 	        parent.state.tree[focusIndex].props.onFocus();
 	      }
@@ -1046,6 +1049,9 @@ var ReactSpatialNavigation = (function (exports) {
 	  }, {
 	    key: "quitFocusInParent",
 	    value: function quitFocusInParent(parent, focusIndex) {
+	      if (parent.props.onBlur) {
+	        parent.props.onBlur();
+	      }
 	      if (parent.state.tree[focusIndex].props.onBlur) {
 	        parent.state.tree[focusIndex].props.onBlur();
 	      }
@@ -1110,7 +1116,11 @@ var ReactSpatialNavigation = (function (exports) {
 	        { value: this.state },
 	        react.createElement(
 	          "ul",
-	          { className: this.props.className },
+	          {
+	            onFocus: this.props.onFocus,
+	            onBlur: this.props.onBlur,
+	            className: this.props.className
+	          },
 	          this.props.children
 	        )
 	      );
@@ -1334,15 +1344,29 @@ var ReactSpatialNavigation = (function (exports) {
 	  }
 
 	  createClass(App, [{
+	    key: "focus",
+	    value: function focus() {
+	      alert("focus");
+	    }
+	  }, {
+	    key: "blur",
+	    value: function blur() {
+	      alert("blur");
+	    }
+	  }, {
 	    key: "render",
 	    value: function render() {
+	      var _this4 = this;
+
 	      return react.createElement(
 	        Controller,
 	        null,
 	        react.createElement(
 	          "h1",
 	          null,
-	          " Vertical Columns - By default, it moves up or down the focus"
+	          " ",
+	          "Vertical Columns - By default, it moves the focus either up or down",
+	          " "
 	        ),
 	        react.createElement(
 	          "p",
@@ -1359,7 +1383,15 @@ var ReactSpatialNavigation = (function (exports) {
 	          { className: "vertical-columns" },
 	          react.createElement(
 	            VerticalParent,
-	            { className: "vertical-focusable" },
+	            {
+	              onFocus: function onFocus() {
+	                return _this4.focus();
+	              },
+	              onBlur: function onBlur() {
+	                return _this4.blur();
+	              },
+	              className: "vertical-focusable"
+	            },
 	            react.createElement(Item, null),
 	            react.createElement(Item, null)
 	          ),
@@ -1388,7 +1420,9 @@ var ReactSpatialNavigation = (function (exports) {
 	        react.createElement(
 	          "h1",
 	          null,
-	          "Horizontal Columns - By default, it moves left or right the focus"
+	          " ",
+	          "Horizontal Columns - By default, it moves the focus either left or right",
+	          " "
 	        ),
 	        react.createElement(
 	          "p",

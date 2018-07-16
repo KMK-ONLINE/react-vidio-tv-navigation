@@ -575,6 +575,9 @@
 	  }, {
 	    key: "setFocusInParent",
 	    value: function setFocusInParent(parent, focusIndex) {
+	      if (parent.props.onFocus) {
+	        parent.props.onFocus();
+	      }
 	      if (parent.state.tree[focusIndex].props.onFocus) {
 	        parent.state.tree[focusIndex].props.onFocus();
 	      }
@@ -583,6 +586,9 @@
 	  }, {
 	    key: "quitFocusInParent",
 	    value: function quitFocusInParent(parent, focusIndex) {
+	      if (parent.props.onBlur) {
+	        parent.props.onBlur();
+	      }
 	      if (parent.state.tree[focusIndex].props.onBlur) {
 	        parent.state.tree[focusIndex].props.onBlur();
 	      }
@@ -647,7 +653,11 @@
 	        { value: this.state },
 	        react.createElement(
 	          "ul",
-	          { className: this.props.className },
+	          {
+	            onFocus: this.props.onFocus,
+	            onBlur: this.props.onBlur,
+	            className: this.props.className
+	          },
 	          this.props.children
 	        )
 	      );

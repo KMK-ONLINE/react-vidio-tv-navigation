@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test": "jest",
-    "dev": "rollup -c -w example.rollup.config.js",
+    "dev": "rollup -c example.rollup.config.js -w",
     "build": "rollup -c rollup.config.js"
   },
   "author": "",

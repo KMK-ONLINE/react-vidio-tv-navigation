@@ -42,7 +42,13 @@ export class ParentWithContext extends React.Component<
   render() {
     return (
       <ParentContext.Provider value={this.state}>
-        <ul className={this.props.className}>{this.props.children}</ul>
+        <ul
+          onFocus={this.props.onFocus}
+          onBlur={this.props.onBlur}
+          className={this.props.className}
+        >
+          {this.props.children}
+        </ul>
       </ParentContext.Provider>
     );
   }

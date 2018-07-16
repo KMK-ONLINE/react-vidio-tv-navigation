@@ -455,6 +455,48 @@ describe("Controller tests", () => {
   });
 
   describe("SetFocusInParent", () => {
+    describe("When onFocus is defined on the Parent", () => {
+      const onFocusMock = jest.fn();
+      const currentFocus = 0;
+      const focusIndex = 0;
+      const comp = shallow(<Controller />);
+      const parent = shallow(<VerticalParent onFocus={onFocusMock} />);
+      const child = mount(<Child />);
+      child.props = child.props();
+      comp.setState({ currentFocus: currentFocus, tree: [parent] });
+      comp.state = comp.state();
+      parent.setState({ currentFocus: currentFocus, tree: [child, child] });
+      parent.state = parent.state();
+      parent.props = parent.props();
+      comp.instance().setFocusInParent(parent, focusIndex);
+
+      it("calls onFocus", () => {
+        expect(onFocusMock).toHaveBeenCalled();
+        child.unmount();
+      });
+    });
+
+    describe("When onFocus is not defined on the Parent", () => {
+      const onFocusMock = jest.fn();
+      const currentFocus = 0;
+      const focusIndex = 0;
+      const comp = shallow(<Controller />);
+      const parent = shallow(<VerticalParent />);
+      const child = mount(<Child />);
+      child.props = child.props();
+      comp.setState({ currentFocus: currentFocus, tree: [parent] });
+      comp.state = comp.state();
+      parent.setState({ currentFocus: currentFocus, tree: [child, child] });
+      parent.state = parent.state();
+      parent.props = parent.props();
+      comp.instance().setFocusInParent(parent, focusIndex);
+
+      it("does not call onFocus", () => {
+        expect(onFocusMock).not.toHaveBeenCalled();
+        child.unmount();
+      });
+    });
+
     describe("When onFocus is defined on the child with the focus", () => {
       const onFocusMock = jest.fn();
       const currentFocus = 0;
@@ -500,6 +542,48 @@ describe("Controller tests", () => {
   });
 
   describe("QuitFocusInParent", () => {
+    describe("When onBlur is defined on the Parent", () => {
+      const onBlurMock = jest.fn();
+      const currentFocus = 0;
+      const focusIndex = 0;
+      const comp = shallow(<Controller />);
+      const parent = shallow(<VerticalParent onBlur={onBlurMock} />);
+      const child = mount(<Child />);
+      child.props = child.props();
+      comp.setState({ currentFocus: currentFocus, tree: [parent] });
+      comp.state = comp.state();
+      parent.setState({ currentFocus: currentFocus, tree: [child, child] });
+      parent.state = parent.state();
+      parent.props = parent.props();
+      comp.instance().quitFocusInParent(parent, focusIndex);
+
+      it("calls onBlur", () => {
+        expect(onBlurMock).toHaveBeenCalled();
+        child.unmount();
+      });
+    });
+
+    describe("When onBlur is not defined on the Parent", () => {
+      const onBlurMock = jest.fn();
+      const currentFocus = 0;
+      const focusIndex = 0;
+      const comp = shallow(<Controller />);
+      const parent = shallow(<VerticalParent />);
+      const child = mount(<Child />);
+      child.props = child.props();
+      comp.setState({ currentFocus: currentFocus, tree: [parent] });
+      comp.state = comp.state();
+      parent.setState({ currentFocus: currentFocus, tree: [child, child] });
+      parent.state = parent.state();
+      parent.props = parent.props();
+      comp.instance().quitFocusInParent(parent, focusIndex);
+
+      it("does not call onBlur", () => {
+        expect(onBlurMock).not.toHaveBeenCalled();
+        child.unmount();
+      });
+    });
+
     describe("When onBlur is defined on the child with the focus", () => {
       const onBlurMock = jest.fn();
       const currentFocus = 0;
