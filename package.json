@@ -2,13 +2,14 @@
   "name": "react-spatial-navigation",
   "version": "1.0.0",
   "description": "A react based implementation of the spatial navigation",
-  "main": "index.js",
+  "main": "build/index.js",
   "directories": {
     "test": "tests"
   },
   "scripts": {
     "test": "jest",
-    "dev": "rollup -c -w"
+    "dev": "rollup -c -w example.rollup.config.js",
+    "build": "rollup -c rollup.config.js"
   },
   "author": "",
   "license": "ISC",
