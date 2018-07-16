@@ -8,8 +8,8 @@ export default {
     input : "src/index.js",
     output : {
         file: "build/bundle.js",
-        format: "iife",
-        name: "ReactSpatialNavigation"
+        format: "umd",
+        name: "react-spatial-navigation"
     },
     plugins : [
         babel({

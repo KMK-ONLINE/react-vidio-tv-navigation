@@ -1,5 +1,8 @@
-var ReactSpatialNavigation = (function (exports) {
-	'use strict';
+(function (global, factory) {
+	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
+	typeof define === 'function' && define.amd ? define(['exports'], factory) :
+	(factory((global['react-spatial-navigation'] = {})));
+}(this, (function (exports) { 'use strict';
 
 	function createCommonjsModule(fn, module) {
 		return module = { exports: {} }, fn(module, module.exports), module.exports;
@@ -807,6 +810,6 @@ var ReactSpatialNavigation = (function (exports) {
 	exports.HorizontalParent = HorizontalParent;
 	exports.MatrixParent = MatrixParent;
 
-	return exports;
+	Object.defineProperty(exports, '__esModule', { value: true });
 
-}({}));
+})));
