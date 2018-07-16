@@ -132,7 +132,7 @@ By default, if we want to move from one child to another, we should use "UP" and
 
 We can combine multiple parents in order to create something like the following:
 
-    Parent 1            Parent 2
+    VerticalParent 1    VerticalParent 2
     |                   |
     |-- Child 1         |-- Child 1
     |                   |
@@ -151,8 +151,8 @@ By default, if we want to move from one child to another, we should use "LEFT" a
 
 We can combine multiple parents in order to create something like the following:
 
-    Parent 1 -- Child 1 -- Child 2
-    Parent 2 -- Child 1 -- Child 2
+    HorizontalParent 1 -- Child 1 -- Child 2
+    HorizontalParent 2 -- Child 1 -- Child 2
     
 
 Let's say the focus is on the child 2 of the parent 1. There are 4 possible scenarios:
@@ -168,7 +168,7 @@ By default, if we want to move from one child to another, we can use any arrow k
 
 Given the following example:
 
-              Parent 1
+              MatrixParent 1
                 || ( It represents that all children belong to Parent 1)
                 ||
     Child 1 -- Child 2 -- Child 3
