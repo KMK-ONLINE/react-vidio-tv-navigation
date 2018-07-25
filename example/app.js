@@ -73,6 +73,7 @@ class App extends React.Component {
             onFocus={index => this.focus(index)}
             onBlur={index => this.blur(index)}
             className={"vertical-focusable"}
+            withFocus
           >
             <Item />
             <Item />
@@ -100,7 +101,7 @@ class App extends React.Component {
           Also, by clicking up or down, it moves to the next or previous parent
           ( if present, if not, nothing happens )
         </p>
-        <HorizontalParent className={"horizontal-columns"}>
+        <HorizontalParent className={"horizontal-columns"} withFocus>
           <Item />
           <Item />
         </HorizontalParent>

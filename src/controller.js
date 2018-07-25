@@ -44,22 +44,28 @@ export default class Controller extends React.Component {
 
   constructor(props: ControllerProps) {
     super(props);
+    this.currentFocus = 0;
+    this.addParentToTree = this.addParentToTree.bind(this);
+    this.deleteParentFromTree = this.deleteParentFromTree.bind(this);
     this.state = {
-      currentFocus: 0,
-      tree: []
+      tree: [],
+      addParentToTree: this.addParentToTree,
+      deleteParentFromTree: this.deleteParentFromTree
     };
   }
 
   onKeyDown(evt: KeyboardEvent) {
     const keymap = keyMapping[evt.keyCode];
     if (keymap === ENTER) {
-      this.handleEnter();
+      return this.handleEnter();
+    } else {
+      this.handleFocus(keymap);
     }
-    this.handleFocus(keymap);
   }
 
   handleEnter(): void {
-    const { currentFocus, tree } = this.state;
+    const { tree } = this.state;
+    const currentFocus = this.getFocusState();
     const parent = tree[currentFocus];
     const parentState = parent.state;
     if (parentState.tree[parentState.currentFocus].props.onEnter) {
@@ -67,35 +73,50 @@ export default class Controller extends React.Component {
     }
   }
 
-  handleFocus(direction: Direction): void {
-    const { currentFocus, tree } = this.state;
+  setFocusState(index: number, cb?: number => void): void {
+    this.currentFocus = index;
+    if (cb) cb(this.currentFocus);
+  }
 
-    if (tree[currentFocus].state.type === HORIZONTAL)
+  getFocusState(): number {
+    return this.currentFocus;
+  }
+
+  handleFocus(direction: Direction): void {
+    const { tree } = this.state;
+    const index = this.getFocusState();
+
+    if (tree[index].state.type === HORIZONTAL)
       this.handleFocusInHorizontalParent(direction);
 
-    if (tree[currentFocus].state.type === VERTICAL)
+    if (tree[index].state.type === VERTICAL)
       this.handleFocusInVerticalParent(direction);
 
-    if (tree[currentFocus].state.type === MATRIX)
+    if (tree[index].state.type === MATRIX)
       this.handleFocusInMatrixParent(direction);
   }
 
   canMoveToPreviousParent(): boolean {
-    return this.state.currentFocus > 0;
+    return this.getFocusState() > 0;
   }
 
   canMoveToNextParent(): boolean {
-    const { currentFocus, tree } = this.state;
-    return currentFocus < tree.length - 1;
+    const { tree } = this.state;
+
+    return this.getFocusState() < tree.length - 1;
   }
 
   focusInParentOnInitEdge(): boolean {
-    const { currentFocus, tree } = this.state;
+    const { tree } = this.state;
+    const currentFocus = this.getFocusState();
+
     return tree[currentFocus].state.currentFocus === 0;
   }
 
   focusInParentOnFinalEdge(): boolean {
-    const { currentFocus, tree } = this.state;
+    const { tree } = this.state;
+    const currentFocus = this.getFocusState();
+
     return (
       tree[currentFocus].state.currentFocus ===
       tree[currentFocus].state.tree.length - 1
@@ -103,7 +124,8 @@ export default class Controller extends React.Component {
   }
 
   handleFocusInVerticalParent(direction: Direction) {
-    const { currentFocus, tree } = this.state;
+    const { tree } = this.state;
+    const currentFocus = this.getFocusState();
 
     if (direction === LEFT && this.canMoveToPreviousParent()) {
       this.moveFocusInTree(NEGATIVE);
@@ -131,7 +153,8 @@ export default class Controller extends React.Component {
   }
 
   handleFocusInHorizontalParent(direction: Direction) {
-    const { currentFocus, tree } = this.state;
+    const { tree } = this.state;
+    const currentFocus = this.getFocusState();
 
     if (direction === UP && this.canMoveToPreviousParent()) {
       this.moveFocusInTree(NEGATIVE);
@@ -159,12 +182,14 @@ export default class Controller extends React.Component {
   }
 
   handleFocusInMatrixParent(direction: Direction) {
-    const { currentFocus, tree } = this.state;
+    const { tree } = this.state;
+    const currentFocus = this.getFocusState();
     const parent = tree[currentFocus];
 
     if (direction === RIGHT) {
       if (
-        parent.state.currentFocus % parent.state.columns !==
+        parent.state.currentFocus %
+        parent.state.columns !==
         parent.state.columns - 1
       ) {
         this.quitFocusInParent(
@@ -223,20 +248,16 @@ export default class Controller extends React.Component {
 
   componentDidMount() {
     window.addEventListener("keydown", this.onKeyDown.bind(this));
-
-    this.setParentFocus(this.state.currentFocus);
+    this.setParentFocus(this.getFocusState());
   }
 
   setParentFocus(index: number): void {
-    this.setState(
-      () => Object.assign({}, this.state, { currentFocus: index }),
-      () => {
-        if (this.state.tree.length > 0) {
-          const parent = this.state.tree[index];
-          this.moveFocusInParent(parent, DEFAULT);
-        }
+    this.setFocusState(index, () => {
+      if (this.state.tree.length > 0) {
+        const parent = this.state.tree[index];
+        this.moveFocusInParent(parent, DEFAULT);
       }
-    );
+    });
   }
 
   moveFocusInParent(
@@ -272,23 +293,18 @@ export default class Controller extends React.Component {
   }
 
   moveFocusInTree(direction: NEGATIVE | POSITIVE) {
-    const { currentFocus, tree } = this.state;
+    const { tree } = this.state;
+    const currentFocus = this.getFocusState();
     const nextFocus =
       direction == NEGATIVE ? currentFocus - 1 : currentFocus + 1;
     this.quitFocusInParent(
       tree[currentFocus],
       tree[currentFocus].state.currentFocus
     );
-    this.setState(
-      () =>
-        Object.assign({}, this.state, {
-          currentFocus: nextFocus
-        }),
-      () => {
-        const parent = this.state.tree[this.state.currentFocus];
-        this.moveFocusInParent(parent, DEFAULT);
-      }
-    );
+    this.setFocusState(nextFocus, nextFocus => {
+      const parent = this.state.tree[nextFocus];
+      this.moveFocusInParent(parent, DEFAULT);
+    });
   }
 
   setFocusInParent(parent: ParentType, focusIndex: number): void {
@@ -309,6 +325,36 @@ export default class Controller extends React.Component {
       parent.state.tree[focusIndex].props.onBlur();
     }
     parent.state.currentFocus = focusIndex;
+  }
+
+  addParentToTree(parent: ParentType): void {
+    this.state.tree.push(parent);
+
+    if (parent.props.withFocus) {
+      const currentFocus = this.getFocusState();
+      const parentWithFocus = this.state.tree[currentFocus];
+      this.quitFocusInParent(
+        parentWithFocus,
+        parentWithFocus.state.currentFocus
+      );
+
+      this.setParentFocus(this.state.tree.indexOf(parent));
+    }
+  }
+
+  deleteParentFromTree(parent: ParentType): void {
+    const currentFocus = this.getFocusState();
+    const index = this.state.tree.indexOf(parent);
+
+    if (index === currentFocus) {
+      this.state.tree.splice(index, 1);
+      this.setParentFocus(0);
+    } else {
+      if (index < currentFocus) {
+        this.setFocusState(currentFocus - 1);
+      }
+      this.state.tree.splice(index, 1);
+    }
   }
 
   render() {

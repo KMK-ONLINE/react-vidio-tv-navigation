@@ -778,9 +778,13 @@ var ReactSpatialNavigation = (function (exports) {
 
 	    var _this = possibleConstructorReturn(this, (Controller.__proto__ || Object.getPrototypeOf(Controller)).call(this, props));
 
+	    _this.currentFocus = 0;
+	    _this.addParentToTree = _this.addParentToTree.bind(_this);
+	    _this.deleteParentFromTree = _this.deleteParentFromTree.bind(_this);
 	    _this.state = {
-	      currentFocus: 0,
-	      tree: []
+	      tree: [],
+	      addParentToTree: _this.addParentToTree,
+	      deleteParentFromTree: _this.deleteParentFromTree
 	    };
 	    return _this;
 	  }
@@ -790,17 +794,17 @@ var ReactSpatialNavigation = (function (exports) {
 	    value: function onKeyDown(evt) {
 	      var keymap = keyMapping[evt.keyCode];
 	      if (keymap === ENTER) {
-	        this.handleEnter();
+	        return this.handleEnter();
+	      } else {
+	        this.handleFocus(keymap);
 	      }
-	      this.handleFocus(keymap);
 	    }
 	  }, {
 	    key: "handleEnter",
 	    value: function handleEnter() {
-	      var _state = this.state,
-	          currentFocus = _state.currentFocus,
-	          tree = _state.tree;
+	      var tree = this.state.tree;
 
+	      var currentFocus = this.getFocusState();
 	      var parent = tree[currentFocus];
 	      var parentState = parent.state;
 	      if (parentState.tree[parentState.currentFocus].props.onEnter) {
@@ -808,58 +812,66 @@ var ReactSpatialNavigation = (function (exports) {
 	      }
 	    }
 	  }, {
+	    key: "setFocusState",
+	    value: function setFocusState(index, cb) {
+	      this.currentFocus = index;
+	      if (cb) cb(this.currentFocus);
+	    }
+	  }, {
+	    key: "getFocusState",
+	    value: function getFocusState() {
+	      return this.currentFocus;
+	    }
+	  }, {
 	    key: "handleFocus",
 	    value: function handleFocus(direction) {
-	      var _state2 = this.state,
-	          currentFocus = _state2.currentFocus,
-	          tree = _state2.tree;
+	      var tree = this.state.tree;
 
+	      var index = this.getFocusState();
 
-	      if (tree[currentFocus].state.type === HORIZONTAL) this.handleFocusInHorizontalParent(direction);
+	      if (tree[index].state.type === HORIZONTAL) this.handleFocusInHorizontalParent(direction);
 
-	      if (tree[currentFocus].state.type === VERTICAL) this.handleFocusInVerticalParent(direction);
+	      if (tree[index].state.type === VERTICAL) this.handleFocusInVerticalParent(direction);
 
-	      if (tree[currentFocus].state.type === MATRIX) this.handleFocusInMatrixParent(direction);
+	      if (tree[index].state.type === MATRIX) this.handleFocusInMatrixParent(direction);
 	    }
 	  }, {
 	    key: "canMoveToPreviousParent",
 	    value: function canMoveToPreviousParent() {
-	      return this.state.currentFocus > 0;
+	      return this.getFocusState() > 0;
 	    }
 	  }, {
 	    key: "canMoveToNextParent",
 	    value: function canMoveToNextParent() {
-	      var _state3 = this.state,
-	          currentFocus = _state3.currentFocus,
-	          tree = _state3.tree;
+	      var tree = this.state.tree;
 
-	      return currentFocus < tree.length - 1;
+
+	      return this.getFocusState() < tree.length - 1;
 	    }
 	  }, {
 	    key: "focusInParentOnInitEdge",
 	    value: function focusInParentOnInitEdge() {
-	      var _state4 = this.state,
-	          currentFocus = _state4.currentFocus,
-	          tree = _state4.tree;
+	      var tree = this.state.tree;
+
+	      var currentFocus = this.getFocusState();
 
 	      return tree[currentFocus].state.currentFocus === 0;
 	    }
 	  }, {
 	    key: "focusInParentOnFinalEdge",
 	    value: function focusInParentOnFinalEdge() {
-	      var _state5 = this.state,
-	          currentFocus = _state5.currentFocus,
-	          tree = _state5.tree;
+	      var tree = this.state.tree;
+
+	      var currentFocus = this.getFocusState();
 
 	      return tree[currentFocus].state.currentFocus === tree[currentFocus].state.tree.length - 1;
 	    }
 	  }, {
 	    key: "handleFocusInVerticalParent",
 	    value: function handleFocusInVerticalParent(direction) {
-	      var _state6 = this.state,
-	          currentFocus = _state6.currentFocus,
-	          tree = _state6.tree;
+	      var tree = this.state.tree;
 
+	      var currentFocus = this.getFocusState();
 
 	      if (direction === LEFT && this.canMoveToPreviousParent()) {
 	        this.moveFocusInTree(NEGATIVE);
@@ -888,10 +900,9 @@ var ReactSpatialNavigation = (function (exports) {
 	  }, {
 	    key: "handleFocusInHorizontalParent",
 	    value: function handleFocusInHorizontalParent(direction) {
-	      var _state7 = this.state,
-	          currentFocus = _state7.currentFocus,
-	          tree = _state7.tree;
+	      var tree = this.state.tree;
 
+	      var currentFocus = this.getFocusState();
 
 	      if (direction === UP && this.canMoveToPreviousParent()) {
 	        this.moveFocusInTree(NEGATIVE);
@@ -920,10 +931,9 @@ var ReactSpatialNavigation = (function (exports) {
 	  }, {
 	    key: "handleFocusInMatrixParent",
 	    value: function handleFocusInMatrixParent(direction) {
-	      var _state8 = this.state,
-	          currentFocus = _state8.currentFocus,
-	          tree = _state8.tree;
+	      var tree = this.state.tree;
 
+	      var currentFocus = this.getFocusState();
 	      var parent = tree[currentFocus];
 
 	      if (direction === RIGHT) {
@@ -971,17 +981,14 @@ var ReactSpatialNavigation = (function (exports) {
 	    key: "componentDidMount",
 	    value: function componentDidMount() {
 	      window.addEventListener("keydown", this.onKeyDown.bind(this));
-
-	      this.setParentFocus(this.state.currentFocus);
+	      this.setParentFocus(this.getFocusState());
 	    }
 	  }, {
 	    key: "setParentFocus",
 	    value: function setParentFocus(index) {
 	      var _this2 = this;
 
-	      this.setState(function () {
-	        return Object.assign({}, _this2.state, { currentFocus: index });
-	      }, function () {
+	      this.setFocusState(index, function () {
 	        if (_this2.state.tree.length > 0) {
 	          var parent = _this2.state.tree[index];
 	          _this2.moveFocusInParent(parent, DEFAULT);
@@ -1020,18 +1027,13 @@ var ReactSpatialNavigation = (function (exports) {
 	    value: function moveFocusInTree(direction) {
 	      var _this3 = this;
 
-	      var _state9 = this.state,
-	          currentFocus = _state9.currentFocus,
-	          tree = _state9.tree;
+	      var tree = this.state.tree;
 
+	      var currentFocus = this.getFocusState();
 	      var nextFocus = direction == NEGATIVE ? currentFocus - 1 : currentFocus + 1;
 	      this.quitFocusInParent(tree[currentFocus], tree[currentFocus].state.currentFocus);
-	      this.setState(function () {
-	        return Object.assign({}, _this3.state, {
-	          currentFocus: nextFocus
-	        });
-	      }, function () {
-	        var parent = _this3.state.tree[_this3.state.currentFocus];
+	      this.setFocusState(nextFocus, function (nextFocus) {
+	        var parent = _this3.state.tree[nextFocus];
 	        _this3.moveFocusInParent(parent, DEFAULT);
 	      });
 	    }
@@ -1056,6 +1058,35 @@ var ReactSpatialNavigation = (function (exports) {
 	        parent.state.tree[focusIndex].props.onBlur();
 	      }
 	      parent.state.currentFocus = focusIndex;
+	    }
+	  }, {
+	    key: "addParentToTree",
+	    value: function addParentToTree(parent) {
+	      this.state.tree.push(parent);
+
+	      if (parent.props.withFocus) {
+	        var currentFocus = this.getFocusState();
+	        var parentWithFocus = this.state.tree[currentFocus];
+	        this.quitFocusInParent(parentWithFocus, parentWithFocus.state.currentFocus);
+
+	        this.setParentFocus(this.state.tree.indexOf(parent));
+	      }
+	    }
+	  }, {
+	    key: "deleteParentFromTree",
+	    value: function deleteParentFromTree(parent) {
+	      var currentFocus = this.getFocusState();
+	      var index = this.state.tree.indexOf(parent);
+
+	      if (index === currentFocus) {
+	        this.state.tree.splice(index, 1);
+	        this.setParentFocus(0);
+	      } else {
+	        if (index < currentFocus) {
+	          this.setFocusState(currentFocus - 1);
+	        }
+	        this.state.tree.splice(index, 1);
+	      }
 	    }
 	  }, {
 	    key: "render",
@@ -1093,7 +1124,8 @@ var ReactSpatialNavigation = (function (exports) {
 	      tree: [],
 	      type: props.focusableType,
 	      rows: props.rows,
-	      columns: props.columns
+	      columns: props.columns,
+	      id: Math.random() * 1000000000
 	    };
 	    return _this;
 	  }
@@ -1101,12 +1133,12 @@ var ReactSpatialNavigation = (function (exports) {
 	  createClass(ParentWithContext, [{
 	    key: "componentDidMount",
 	    value: function componentDidMount() {
-	      this.addToParentTree();
+	      if (this.props.context && this.props.context.addParentToTree) this.props.context.addParentToTree(this);
 	    }
 	  }, {
-	    key: "addToParentTree",
-	    value: function addToParentTree() {
-	      if (this.props.context && this.props.context.tree) this.props.context.tree.push(this);
+	    key: "componentWillUnmount",
+	    value: function componentWillUnmount() {
+	      if (this.props.context && this.props.context.deleteParentFromTree) this.props.context.deleteParentFromTree(this);
 	    }
 	  }, {
 	    key: "render",
@@ -1390,7 +1422,8 @@ var ReactSpatialNavigation = (function (exports) {
 	              onBlur: function onBlur(index) {
 	                return _this4.blur(index);
 	              },
-	              className: "vertical-focusable"
+	              className: "vertical-focusable",
+	              withFocus: true
 	            },
 	            react.createElement(Item, null),
 	            react.createElement(Item, null)
@@ -1436,7 +1469,7 @@ var ReactSpatialNavigation = (function (exports) {
 	        ),
 	        react.createElement(
 	          HorizontalParent,
-	          { className: "horizontal-columns" },
+	          { className: "horizontal-columns", withFocus: true },
 	          react.createElement(Item, null),
 	          react.createElement(Item, null)
 	        ),

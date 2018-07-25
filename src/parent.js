@@ -26,17 +26,19 @@ export class ParentWithContext extends React.Component<
       tree: [],
       type: props.focusableType,
       rows: props.rows,
-      columns: props.columns
+      columns: props.columns,
+      id: Math.random() * 1000000000
     };
   }
 
   componentDidMount() {
-    this.addToParentTree();
+    if (this.props.context && this.props.context.addParentToTree)
+      this.props.context.addParentToTree(this);
   }
 
-  addToParentTree(): void {
-    if (this.props.context && this.props.context.tree)
-      this.props.context.tree.push(this);
+  componentWillUnmount() {
+    if (this.props.context && this.props.context.deleteParentFromTree)
+      this.props.context.deleteParentFromTree(this);
   }
 
   render() {

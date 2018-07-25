@@ -110,39 +110,44 @@ describe("Parent tests", () => {
 });
 
 describe("ParentWithContext tests", () => {
-  it("should calls addToParentTree", () => {
-    const spy = jest.spyOn(ParentWithContext.prototype, "addToParentTree");
-    shallow(<ParentWithContext />);
-    expect(spy).toHaveBeenCalled();
-    spy.mockReset();
-    spy.mockRestore();
+  describe("When mounting the component", () => {
+    it("should calls addParentToTree from the context", () => {
+      const context = {
+        addParentToTree() {}
+      };
+      const spy = jest.spyOn(context, "addParentToTree");
+      shallow(<ParentWithContext context={context} />);
+      expect(spy).toHaveBeenCalled();
+      spy.mockReset();
+      spy.mockRestore();
+    });
+
+    it("should not add the component to the context's tree if there is not context", () => {
+      const contextMock = {
+        tree: {
+          push() {}
+        }
+      };
+      const spy = jest.spyOn(contextMock.tree, "push");
+      shallow(<ParentWithContext />);
+      expect(spy).not.toHaveBeenCalled();
+      //TODO: test it has been called with the instance of the component
+      spy.mockReset();
+      spy.mockRestore();
+    });
   });
 
-  it("should add the component to the context's tree", () => {
-    const contextMock = {
-      tree: {
-        push() {}
-      }
-    };
-    const spy = jest.spyOn(contextMock.tree, "push");
-    shallow(<ParentWithContext context={contextMock} />);
-    expect(spy).toHaveBeenCalled();
-    //TODO: test it has been called with the instance of the component
-    spy.mockReset();
-    spy.mockRestore();
-  });
-
-  it("should not add the component to the context's tree if there is not context", () => {
-    const contextMock = {
-      tree: {
-        push() {}
-      }
-    };
-    const spy = jest.spyOn(contextMock.tree, "push");
-    shallow(<ParentWithContext />);
-    expect(spy).not.toHaveBeenCalled();
-    //TODO: test it has been called with the instance of the component
-    spy.mockReset();
-    spy.mockRestore();
+  describe("When unmounting the component", () => {
+    it("should calls deleteParentFromTree from the context", () => {
+      const context = {
+        deleteParentFromTree() {}
+      };
+      const spy = jest.spyOn(context, "deleteParentFromTree");
+      const component = mount(<ParentWithContext context={context} />);
+      component.unmount();
+      expect(spy).toHaveBeenCalled();
+      spy.mockReset();
+      spy.mockRestore();
+    });
   });
 });

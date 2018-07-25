@@ -33,6 +33,7 @@ declare type ParentProps = {
   focusableType: FocusableType,
   rows: number,
   columns: number,
+  withFocus: boolean,
   onFocus: number => void,
   onBlur: number => void
 };
