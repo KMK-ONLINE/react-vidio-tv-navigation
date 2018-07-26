@@ -344,8 +344,8 @@
 	      var currentFocus = this.getFocusState();
 	      var parent = tree[currentFocus];
 	      var parentState = parent.state;
-	      if (parentState.tree[parentState.currentFocus].props.onEnter) {
-	        return parentState.tree[parentState.currentFocus].props.onEnter();
+	      if (parentState.tree[parent.currentFocus].props.onEnter) {
+	        return parentState.tree[parent.currentFocus].props.onEnter();
 	      }
 	    }
 	  }, {
@@ -392,7 +392,7 @@
 
 	      var currentFocus = this.getFocusState();
 
-	      return tree[currentFocus].state.currentFocus === 0;
+	      return tree[currentFocus].currentFocus === 0;
 	    }
 	  }, {
 	    key: "focusInParentOnFinalEdge",
@@ -401,7 +401,7 @@
 
 	      var currentFocus = this.getFocusState();
 
-	      return tree[currentFocus].state.currentFocus === tree[currentFocus].state.tree.length - 1;
+	      return tree[currentFocus].currentFocus === tree[currentFocus].state.tree.length - 1;
 	    }
 	  }, {
 	    key: "handleFocusInVerticalParent",
@@ -474,8 +474,8 @@
 	      var parent = tree[currentFocus];
 
 	      if (direction === RIGHT) {
-	        if (parent.state.currentFocus % parent.state.columns !== parent.state.columns - 1) {
-	          this.quitFocusInParent(tree[currentFocus], tree[currentFocus].state.currentFocus);
+	        if (parent.currentFocus % parent.state.columns !== parent.state.columns - 1) {
+	          this.quitFocusInParent(tree[currentFocus], tree[currentFocus].currentFocus);
 	          this.moveFocusInParent(parent, POSITIVE);
 	        } else if (this.canMoveToNextParent()) {
 	          this.moveFocusInTree(POSITIVE);
@@ -483,8 +483,8 @@
 	      }
 
 	      if (direction === LEFT) {
-	        if (parent.state.currentFocus % parent.state.columns !== 0) {
-	          this.quitFocusInParent(tree[currentFocus], tree[currentFocus].state.currentFocus);
+	        if (parent.currentFocus % parent.state.columns !== 0) {
+	          this.quitFocusInParent(tree[currentFocus], tree[currentFocus].currentFocus);
 	          this.moveFocusInParent(parent, NEGATIVE);
 	        } else if (this.canMoveToPreviousParent()) {
 	          this.moveFocusInTree(NEGATIVE);
@@ -492,8 +492,8 @@
 	      }
 
 	      if (direction === DOWN) {
-	        if (parent.state.columns * parent.state.rows - parent.state.currentFocus > parent.state.columns) {
-	          this.quitFocusInParent(tree[currentFocus], tree[currentFocus].state.currentFocus);
+	        if (parent.state.columns * parent.state.rows - parent.currentFocus > parent.state.columns) {
+	          this.quitFocusInParent(tree[currentFocus], tree[currentFocus].currentFocus);
 	          this.moveFocusInParent(parent, POSITIVE, parent.state.columns);
 	        } else if (this.canMoveToNextParent()) {
 	          this.moveFocusInTree(POSITIVE);
@@ -501,8 +501,8 @@
 	      }
 
 	      if (direction === UP) {
-	        if (parent.state.currentFocus - parent.state.columns >= 0) {
-	          this.quitFocusInParent(tree[currentFocus], tree[currentFocus].state.currentFocus);
+	        if (parent.currentFocus - parent.state.columns >= 0) {
+	          this.quitFocusInParent(tree[currentFocus], tree[currentFocus].currentFocus);
 	          this.moveFocusInParent(parent, NEGATIVE, parent.state.columns);
 	        } else if (this.canMoveToPreviousParent()) {
 	          this.moveFocusInTree(NEGATIVE);
@@ -518,10 +518,7 @@
 	    key: "componentDidMount",
 	    value: function componentDidMount() {
 	      window.addEventListener("keydown", this.onKeyDown.bind(this));
-	      var currentFocus = this.getFocusState();
-	      if (currentFocus !== null) {
-	        this.setParentFocus(currentFocus);
-	      }
+	      this.setParentFocus(this.getFocusState());
 	    }
 	  }, {
 	    key: "setParentFocus",
@@ -539,26 +536,24 @@
 	    key: "moveFocusInParent",
 	    value: function moveFocusInParent(parent, direction) {
 	      var threeshold = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-	      var _parent$state = parent.state,
-	          currentFocus = _parent$state.currentFocus,
-	          tree = _parent$state.tree;
+	      var tree = parent.state.tree;
 
 
 	      if (direction === DEFAULT) {
-	        this.setFocusInParent(parent, currentFocus);
+	        this.setFocusInParent(parent, parent.currentFocus);
 	      }
 
 	      if (direction === NEGATIVE) {
-	        if (currentFocus > 0) {
-	          this.quitFocusInParent(parent, currentFocus);
-	          this.setFocusInParent(parent, threeshold ? currentFocus - threeshold : currentFocus - 1);
+	        if (parent.currentFocus > 0) {
+	          this.quitFocusInParent(parent, parent.currentFocus);
+	          this.setFocusInParent(parent, threeshold ? parent.currentFocus - threeshold : parent.currentFocus - 1);
 	        }
 	      }
 
 	      if (direction === POSITIVE) {
-	        if (currentFocus < tree.length - 1) {
-	          this.quitFocusInParent(parent, currentFocus);
-	          this.setFocusInParent(parent, threeshold ? currentFocus + threeshold : currentFocus + 1);
+	        if (parent.currentFocus < tree.length - 1) {
+	          this.quitFocusInParent(parent, parent.currentFocus);
+	          this.setFocusInParent(parent, threeshold ? parent.currentFocus + threeshold : parent.currentFocus + 1);
 	        }
 	      }
 	    }
@@ -571,7 +566,7 @@
 
 	      var currentFocus = this.getFocusState();
 	      var nextFocus = direction == NEGATIVE ? currentFocus - 1 : currentFocus + 1;
-	      this.quitFocusInParent(tree[currentFocus], tree[currentFocus].state.currentFocus);
+	      this.quitFocusInParent(tree[currentFocus], tree[currentFocus].currentFocus);
 	      this.setFocusState(nextFocus, function (nextFocus) {
 	        var parent = _this3.state.tree[nextFocus];
 	        _this3.moveFocusInParent(parent, DEFAULT);
@@ -586,7 +581,7 @@
 	      if (parent.state.tree[focusIndex].props.onFocus) {
 	        parent.state.tree[focusIndex].props.onFocus();
 	      }
-	      parent.state.currentFocus = focusIndex;
+	      parent.currentFocus = focusIndex;
 	    }
 	  }, {
 	    key: "quitFocusInParent",
@@ -597,18 +592,17 @@
 	      if (parent.state.tree[focusIndex].props.onBlur) {
 	        parent.state.tree[focusIndex].props.onBlur();
 	      }
-	      parent.state.currentFocus = focusIndex;
+	      parent.currentFocus = focusIndex;
 	    }
 	  }, {
 	    key: "addParentToTree",
 	    value: function addParentToTree(parent) {
-	      console.log('adding parent', parent.state.id);
 	      this.state.tree.push(parent);
+
 	      if (parent.props.withFocus) {
 	        var currentFocus = this.getFocusState();
 	        var parentWithFocus = this.state.tree[currentFocus];
-	        this.quitFocusInParent(parentWithFocus, parentWithFocus.state.currentFocus);
-
+	        this.quitFocusInParent(parentWithFocus, parentWithFocus.currentFocus);
 	        this.setParentFocus(this.state.tree.indexOf(parent));
 	      }
 	    }
@@ -618,22 +612,13 @@
 	      var currentFocus = this.getFocusState();
 	      var index = this.state.tree.indexOf(parent);
 
-	      // it means the focus is on the parent we have deleted so we move the focus to
-	      // the last present
 	      if (index === currentFocus) {
-	        if (currentFocus >= 1) {
-	          this.setParentFocus(0); // moves to the first
-	          this.state.tree.splice(index, 1);
-	        }
-	        if (currentFocus === 0) {
-	          this.state.tree.splice(index, 1);
-	          this.setParentFocus(0);
-	        }
+	        this.state.tree.splice(index, 1);
+	        this.setParentFocus(0);
 	      } else {
 	        if (index < currentFocus) {
 	          this.setFocusState(currentFocus - 1);
 	        }
-
 	        this.state.tree.splice(index, 1);
 	      }
 	    }
@@ -668,8 +653,8 @@
 
 	    var _this = possibleConstructorReturn(this, (ParentWithContext.__proto__ || Object.getPrototypeOf(ParentWithContext)).call(this, props));
 
+	    _this.currentFocus = 0;
 	    _this.state = {
-	      currentFocus: 0,
 	      tree: [],
 	      type: props.focusableType,
 	      rows: props.rows,

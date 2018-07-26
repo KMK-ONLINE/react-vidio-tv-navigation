@@ -21,8 +21,8 @@ export class ParentWithContext extends React.Component<
 > {
   constructor(props: ParentProps) {
     super(props);
+    this.currentFocus = 0;
     this.state = {
-      currentFocus: 0,
       tree: [],
       type: props.focusableType,
       rows: props.rows,

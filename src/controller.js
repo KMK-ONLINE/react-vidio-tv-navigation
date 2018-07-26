@@ -68,8 +68,8 @@ export default class Controller extends React.Component {
     const currentFocus = this.getFocusState();
     const parent = tree[currentFocus];
     const parentState = parent.state;
-    if (parentState.tree[parentState.currentFocus].props.onEnter) {
-      return parentState.tree[parentState.currentFocus].props.onEnter();
+    if (parentState.tree[parent.currentFocus].props.onEnter) {
+      return parentState.tree[parent.currentFocus].props.onEnter();
     }
   }
 
@@ -110,7 +110,7 @@ export default class Controller extends React.Component {
     const { tree } = this.state;
     const currentFocus = this.getFocusState();
 
-    return tree[currentFocus].state.currentFocus === 0;
+    return tree[currentFocus].currentFocus === 0;
   }
 
   focusInParentOnFinalEdge(): boolean {
@@ -118,7 +118,7 @@ export default class Controller extends React.Component {
     const currentFocus = this.getFocusState();
 
     return (
-      tree[currentFocus].state.currentFocus ===
+      tree[currentFocus].currentFocus ===
       tree[currentFocus].state.tree.length - 1
     );
   }
@@ -188,13 +188,13 @@ export default class Controller extends React.Component {
 
     if (direction === RIGHT) {
       if (
-        parent.state.currentFocus %
+        parent.currentFocus %
         parent.state.columns !==
         parent.state.columns - 1
       ) {
         this.quitFocusInParent(
           tree[currentFocus],
-          tree[currentFocus].state.currentFocus
+          tree[currentFocus].currentFocus
         );
         this.moveFocusInParent(parent, POSITIVE);
       } else if (this.canMoveToNextParent()) {
@@ -203,10 +203,10 @@ export default class Controller extends React.Component {
     }
 
     if (direction === LEFT) {
-      if (parent.state.currentFocus % parent.state.columns !== 0) {
+      if (parent.currentFocus % parent.state.columns !== 0) {
         this.quitFocusInParent(
           tree[currentFocus],
-          tree[currentFocus].state.currentFocus
+          tree[currentFocus].currentFocus
         );
         this.moveFocusInParent(parent, NEGATIVE);
       } else if (this.canMoveToPreviousParent()) {
@@ -216,12 +216,12 @@ export default class Controller extends React.Component {
 
     if (direction === DOWN) {
       if (
-        parent.state.columns * parent.state.rows - parent.state.currentFocus >
+        parent.state.columns * parent.state.rows - parent.currentFocus >
         parent.state.columns
       ) {
         this.quitFocusInParent(
           tree[currentFocus],
-          tree[currentFocus].state.currentFocus
+          tree[currentFocus].currentFocus
         );
         this.moveFocusInParent(parent, POSITIVE, parent.state.columns);
       } else if (this.canMoveToNextParent()) {
@@ -230,10 +230,10 @@ export default class Controller extends React.Component {
     }
 
     if (direction === UP) {
-      if (parent.state.currentFocus - parent.state.columns >= 0) {
+      if (parent.currentFocus - parent.state.columns >= 0) {
         this.quitFocusInParent(
           tree[currentFocus],
-          tree[currentFocus].state.currentFocus
+          tree[currentFocus].currentFocus
         );
         this.moveFocusInParent(parent, NEGATIVE, parent.state.columns);
       } else if (this.canMoveToPreviousParent()) {
@@ -265,28 +265,32 @@ export default class Controller extends React.Component {
     direction: DEFAULT | NEGATIVE | POSITIVE,
     threeshold: ?number = null
   ): void {
-    const { currentFocus, tree } = parent.state;
+    const { tree } = parent.state;
 
     if (direction === DEFAULT) {
-      this.setFocusInParent(parent, currentFocus);
+      this.setFocusInParent(parent, parent.currentFocus);
     }
 
     if (direction === NEGATIVE) {
-      if (currentFocus > 0) {
-        this.quitFocusInParent(parent, currentFocus);
+      if (parent.currentFocus > 0) {
+        this.quitFocusInParent(parent, parent.currentFocus);
         this.setFocusInParent(
           parent,
-          threeshold ? currentFocus - threeshold : currentFocus - 1
+          threeshold
+            ? parent.currentFocus - threeshold
+            : parent.currentFocus - 1
         );
       }
     }
 
     if (direction === POSITIVE) {
-      if (currentFocus < tree.length - 1) {
-        this.quitFocusInParent(parent, currentFocus);
+      if (parent.currentFocus < tree.length - 1) {
+        this.quitFocusInParent(parent, parent.currentFocus);
         this.setFocusInParent(
           parent,
-          threeshold ? currentFocus + threeshold : currentFocus + 1
+          threeshold
+            ? parent.currentFocus + threeshold
+            : parent.currentFocus + 1
         );
       }
     }
@@ -297,10 +301,7 @@ export default class Controller extends React.Component {
     const currentFocus = this.getFocusState();
     const nextFocus =
       direction == NEGATIVE ? currentFocus - 1 : currentFocus + 1;
-    this.quitFocusInParent(
-      tree[currentFocus],
-      tree[currentFocus].state.currentFocus
-    );
+    this.quitFocusInParent(tree[currentFocus], tree[currentFocus].currentFocus);
     this.setFocusState(nextFocus, nextFocus => {
       const parent = this.state.tree[nextFocus];
       this.moveFocusInParent(parent, DEFAULT);
@@ -314,7 +315,7 @@ export default class Controller extends React.Component {
     if (parent.state.tree[focusIndex].props.onFocus) {
       parent.state.tree[focusIndex].props.onFocus();
     }
-    parent.state.currentFocus = focusIndex;
+    parent.currentFocus = focusIndex;
   }
 
   quitFocusInParent(parent: ParentType, focusIndex: number): void {
@@ -324,7 +325,7 @@ export default class Controller extends React.Component {
     if (parent.state.tree[focusIndex].props.onBlur) {
       parent.state.tree[focusIndex].props.onBlur();
     }
-    parent.state.currentFocus = focusIndex;
+    parent.currentFocus = focusIndex;
   }
 
   addParentToTree(parent: ParentType): void {
@@ -333,11 +334,7 @@ export default class Controller extends React.Component {
     if (parent.props.withFocus) {
       const currentFocus = this.getFocusState();
       const parentWithFocus = this.state.tree[currentFocus];
-      this.quitFocusInParent(
-        parentWithFocus,
-        parentWithFocus.state.currentFocus
-      );
-
+      this.quitFocusInParent(parentWithFocus, parentWithFocus.currentFocus);
       this.setParentFocus(this.state.tree.indexOf(parent));
     }
   }
