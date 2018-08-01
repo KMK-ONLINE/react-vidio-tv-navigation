@@ -6,10 +6,12 @@ import {
   MatrixParent,
   ParentWithContext
 } from "../src/parent";
+import { Child } from "../src/child";
 
-import { ControllerContext } from "../src/controller";
 import { HORIZONTAL, VERTICAL, MATRIX } from "../src/const";
 import { mount, shallow } from "enzyme";
+
+jest.mock("../src/controller_context");
 
 class Item extends React.Component {
   render() {
@@ -96,58 +98,207 @@ describe("Parent tests", () => {
     const wrapper = mount(<Parent />);
     expect(wrapper.find(ParentWithContext).length).toBe(1);
   });
-
-  it("should consume the ControllerContext and forward its context", () => {
-    const state = { tree: [] };
-    const wrapper = mount(
-      <ControllerContext.Provider value={state}>
-        <Parent />
-      </ControllerContext.Provider>
-    );
-    expect(wrapper.find(ParentWithContext).props().context).toBe(state);
-    wrapper.unmount();
-  });
 });
 
 describe("ParentWithContext tests", () => {
   describe("When mounting the component", () => {
     it("should calls addParentToTree from the context", () => {
-      const context = {
-        addParentToTree() {}
-      };
-      const spy = jest.spyOn(context, "addParentToTree");
-      shallow(<ParentWithContext context={context} />);
-      expect(spy).toHaveBeenCalled();
-      spy.mockReset();
-      spy.mockRestore();
-    });
-
-    it("should not add the component to the context's tree if there is not context", () => {
-      const contextMock = {
-        tree: {
-          push() {}
-        }
-      };
-      const spy = jest.spyOn(contextMock.tree, "push");
-      shallow(<ParentWithContext />);
-      expect(spy).not.toHaveBeenCalled();
-      //TODO: test it has been called with the instance of the component
-      spy.mockReset();
-      spy.mockRestore();
+      const parentWithContextComp = shallow(<VerticalParent />)
+        .dive() // ControllerContext
+        .dive(); // ParentWithContext
+      expect(
+        parentWithContextComp.props().context.addParentToTree
+      ).toHaveBeenCalled();
     });
   });
 
   describe("When unmounting the component", () => {
     it("should calls deleteParentFromTree from the context", () => {
-      const context = {
-        deleteParentFromTree() {}
-      };
-      const spy = jest.spyOn(context, "deleteParentFromTree");
-      const component = mount(<ParentWithContext context={context} />);
-      component.unmount();
-      expect(spy).toHaveBeenCalled();
-      spy.mockReset();
-      spy.mockRestore();
+      const parentWithContextComp = shallow(<VerticalParent />)
+        .dive() // ControllerContext
+        .dive(); // ParentWithContext
+      parentWithContextComp.unmount();
+      expect(
+        parentWithContextComp.props().context.deleteParentFromTree
+      ).toHaveBeenCalled();
+    });
+  });
+
+  describe("HasFocusInController", () => {
+    it("should calls hasFocus from the context", () => {
+      const parentWithContextComp = shallow(<VerticalParent />)
+        .dive() // ControllerContext
+        .dive(); // ParentWithContext
+
+      parentWithContextComp
+        .shallow()
+        .instance()
+        .hasFocusInController();
+      expect(parentWithContextComp.props().context.hasFocus).toHaveBeenCalled();
+    });
+  });
+
+  describe("AddChildToTree", () => {
+    it("should add the Child to the tree", () => {
+      const parentWithContextComp = shallow(<VerticalParent />)
+        .dive() // ControllerContext
+        .dive() // ParentWithContext
+        .shallow()
+        .instance();
+
+      parentWithContextComp.state.tree.push = jest.fn();
+      parentWithContextComp.addChildToTree(<Child />);
+
+      expect(parentWithContextComp.state.tree.push).toHaveBeenCalled();
+    });
+  });
+
+  describe("DeleteChildFromTree", () => {
+    describe("when the deleted Child has the focus", () => {
+      const onFocusMock = jest.fn();
+      const comp = mount(
+        <VerticalParent>
+          <Child onFocus={onFocusMock} />
+          <Child />
+        </VerticalParent>
+      );
+
+      const parent = comp.find(ParentWithContext).instance();
+      const child = comp
+        .find(Child)
+        .first()
+        .instance();
+
+      const child2 = comp
+        .find(Child)
+        .at(1)
+        .instance();
+
+      parent.setState({ tree: [child, child2] });
+      parent.currentFocus = 1;
+      parent.hasFocusInController = () => true;
+      parent.deleteChildFromTree(child2);
+
+      it("executes the onFocus on the child that receives the focus", () => {
+        expect(onFocusMock).toBeCalled();
+      });
+    });
+
+    describe("when the deleted Child does not have the focus and the focus position is higher than current focus", () => {
+      const onFocusMock = jest.fn();
+      const onBlurMock = jest.fn();
+
+      const comp = mount(
+        <VerticalParent>
+          <Child />
+          <Child onFocus={onFocusMock} />
+          <Child onBlur={onBlurMock} />
+        </VerticalParent>
+      );
+
+      const parent = comp.find(ParentWithContext).instance();
+      const child = comp
+        .find(Child)
+        .first()
+        .instance();
+
+      const child2 = comp
+        .find(Child)
+        .at(1)
+        .instance();
+
+      const child3 = comp
+        .find(Child)
+        .at(2)
+        .instance();
+
+      parent.setState({ tree: [child, child2, child3] });
+      parent.currentFocus = 0;
+      parent.hasFocusInController = () => true;
+      parent.deleteChildFromTree(child3);
+
+      it("does not execute the onFocus and onBlur on the child that receives the focus", () => {
+        expect(onFocusMock).not.toBeCalled();
+        expect(onBlurMock).not.toBeCalled();
+      });
+    });
+
+    describe("when the deleted Child does not have the focus", () => {
+      const onFocusMock = jest.fn();
+      const onBlurMock = jest.fn();
+
+      const comp = mount(
+        <VerticalParent>
+          <Child />
+          <Child onFocus={onFocusMock} />
+          <Child onBlur={onBlurMock} />
+        </VerticalParent>
+      );
+
+      const parent = comp.find(ParentWithContext).instance();
+      const child = comp
+        .find(Child)
+        .first()
+        .instance();
+
+      const child2 = comp
+        .find(Child)
+        .at(1)
+        .instance();
+
+      const child3 = comp
+        .find(Child)
+        .at(2)
+        .instance();
+
+      parent.setState({ tree: [child, child2, child3] });
+      parent.currentFocus = 2;
+      parent.hasFocusInController = () => true;
+      parent.deleteChildFromTree(child);
+
+      it("executes the onFocus and onblur on the child that receives the focus", () => {
+        expect(onFocusMock).toBeCalled();
+        expect(onBlurMock).toBeCalled();
+      });
+    });
+
+    describe("when the deleted Child does not have the focus and onFocus is not defined", () => {
+      const onFocusMock = jest.fn();
+      const onBlurMock = jest.fn();
+
+      const comp = mount(
+        <VerticalParent>
+          <Child />
+          <Child onFocusFake={onFocusMock} />
+          <Child onBlurFake={onBlurMock} />
+        </VerticalParent>
+      );
+
+      const parent = comp.find(ParentWithContext).instance();
+      const child = comp
+        .find(Child)
+        .first()
+        .instance();
+
+      const child2 = comp
+        .find(Child)
+        .at(1)
+        .instance();
+
+      const child3 = comp
+        .find(Child)
+        .at(2)
+        .instance();
+
+      parent.setState({ tree: [child, child2, child3] });
+      parent.currentFocus = 2;
+      parent.hasFocusInController = () => true;
+      parent.deleteChildFromTree(child);
+
+      it("does not execute the onFocus and onBlur on the child that receives the focus", () => {
+        expect(onFocusMock).not.toBeCalled();
+        expect(onBlurMock).not.toBeCalled();
+      });
     });
   });
 });

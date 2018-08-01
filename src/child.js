@@ -1,6 +1,6 @@
 // @flow
 import React from "react";
-import { ParentContext } from "./parent";
+import { ParentContext } from "./parent_context";
 
 export class FocusableChild extends React.Component<ChildProps, ChildState> {
   focusbableChildren: Array<Element<FocusableChild>>;
@@ -14,9 +14,16 @@ export class FocusableChild extends React.Component<ChildProps, ChildState> {
     this.addToParentTree();
   }
 
+  componentWillUnmount() {
+    this.deleteFromParentTree();
+  }
+
   addToParentTree(): void {
-    if (this.props.context && this.props.context.tree)
-      this.props.context.tree.push(this);
+    this.props.context.addChildToTree(this);
+  }
+
+  deleteFromParentTree(): void {
+    this.props.context.deleteChildFromTree(this);
   }
 
   render() {

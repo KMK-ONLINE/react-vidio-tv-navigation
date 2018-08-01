@@ -13,6 +13,7 @@ import {
   POSITIVE,
   NEGATIVE
 } from "./const";
+import { ControllerContext } from "./controller_context";
 
 type KeyMap = {
   "37": string,
@@ -32,12 +33,6 @@ const keyMapping: KeyMap = {
   "13": ENTER
 };
 
-const controllerContext: ControllerState = {
-  currentFocus: 0,
-  tree: []
-};
-export const ControllerContext = React.createContext(controllerContext);
-
 export default class Controller extends React.Component {
   state: ControllerState;
   props: ControllerProps;
@@ -47,10 +42,12 @@ export default class Controller extends React.Component {
     this.currentFocus = 0;
     this.addParentToTree = this.addParentToTree.bind(this);
     this.deleteParentFromTree = this.deleteParentFromTree.bind(this);
+    this.hasFocus = this.hasFocus.bind(this);
     this.state = {
       tree: [],
       addParentToTree: this.addParentToTree,
-      deleteParentFromTree: this.deleteParentFromTree
+      deleteParentFromTree: this.deleteParentFromTree,
+      hasFocus: this.hasFocus
     };
   }
 
@@ -80,6 +77,10 @@ export default class Controller extends React.Component {
 
   getFocusState(): number {
     return this.currentFocus;
+  }
+
+  hasFocus(parent: ParentType): boolean {
+    return this.state.tree[this.currentFocus] === parent;
   }
 
   handleFocus(direction: Direction): void {

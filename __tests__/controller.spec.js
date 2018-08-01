@@ -15,7 +15,6 @@ import {
   NEGATIVE
 } from "../src/const";
 import { shallow, mount } from "enzyme";
-import { createSecureServer } from "http2";
 
 describe("Controller tests", () => {
   describe("Constructor", () => {
@@ -386,16 +385,16 @@ describe("Controller tests", () => {
     describe("When onEnter is defined on the component that has the focus", () => {
       it("calls onEnter", () => {
         const onEnterMock = jest.fn();
-        const currentFocus = 0;
-        const comp = shallow(<Controller />).instance();
-        const parent = shallow(<VerticalParent />).instance();
-        const child = mount(<Child onEnter={onEnterMock} />).instance();
-        comp.setState({ tree: [parent] });
-        parent.setState({
-          tree: [child, child]
-        });
-        parent.currentFocus = currentFocus;
-        comp.handleEnter();
+        const comp = mount(
+          <Controller>
+            <VerticalParent>
+              <Child onEnter={onEnterMock} />
+              <Child />
+            </VerticalParent>
+          </Controller>
+        );
+        comp.instance().handleEnter();
+
         expect(onEnterMock).toHaveBeenCalled();
       });
     });
@@ -403,19 +402,27 @@ describe("Controller tests", () => {
     describe("When onEnter is not defined on the component that has the focus", () => {
       it("does not call onEnter", () => {
         const onEnterMock = jest.fn();
-        const currentFocus = 0;
-        const comp = shallow(<Controller />).instance();
-        const parent = shallow(<VerticalParent />).instance();
-        const child = mount(<Child />).instance();
-        comp.setState({ tree: [parent] });
-        parent.setState({
-          tree: [child, child]
-        });
-        parent.currentFocus = currentFocus;
-        comp.handleEnter();
+        const comp = mount(
+          <Controller>
+            <VerticalParent>
+              <Child />
+              <Child />
+            </VerticalParent>
+          </Controller>
+        );
+        comp.instance().handleEnter();
         expect(onEnterMock).not.toHaveBeenCalled();
       });
     });
+  });
+
+  describe("HasFocus", () => {
+    it("returns true if the parent has the focus", () => {
+      const comp = shallow(<Controller />).instance();
+      const parent = shallow(<HorizontalParent />).instance();
+      comp.setState({ tree: [parent] });
+      expect(comp.hasFocus(parent)).toBeTruthy();
+    })
   });
 
   describe("HandleFocus", () => {
@@ -468,7 +475,7 @@ describe("Controller tests", () => {
       const parent = shallow(
         <VerticalParent onFocus={onFocusMock} />
       ).instance();
-      const child = mount(<Child />).instance();
+      const child = shallow(<Child />).instance();
       comp.setState({ tree: [parent] });
       parent.setState({
         tree: [child, child]
@@ -485,8 +492,10 @@ describe("Controller tests", () => {
       const onFocusMock = jest.fn();
       const focusIndex = 0;
       const comp = shallow(<Controller />).instance();
-      const parent = shallow(<VerticalParent />).instance();
-      const child = mount(<Child />).instance();
+      const parent = shallow(
+        <VerticalParent onFocusFake={onFocusMock} />
+      ).instance();
+      const child = shallow(<Child />).instance();
       comp.setState({ tree: [parent] });
       parent.setState({
         tree: [child, child]
@@ -504,7 +513,7 @@ describe("Controller tests", () => {
       const focusIndex = 0;
       const comp = shallow(<Controller />).instance();
       const parent = shallow(<VerticalParent />).instance();
-      const child = mount(<Child onFocus={onFocusMock} />).instance();
+      const child = shallow(<Child onFocus={onFocusMock} />).instance();
       comp.setState({ tree: [parent] });
       parent.setState({
         tree: [child, child]
@@ -525,7 +534,7 @@ describe("Controller tests", () => {
       const focusIndex = 0;
       const comp = shallow(<Controller />).instance();
       const parent = shallow(<VerticalParent />).instance();
-      const child = mount(<Child />).instance();
+      const child = shallow(<Child />).instance();
       comp.setState({ tree: [parent] });
       parent.setState({
         tree: [child, child]
@@ -625,7 +634,7 @@ describe("Controller tests", () => {
       const focusIndex = 0;
       const comp = shallow(<Controller />).instance();
       const parent = shallow(<VerticalParent onBlur={onBlurMock} />).instance();
-      const child = mount(<Child />).instance();
+      const child = shallow(<Child />).instance();
       comp.setState({ tree: [parent] });
       parent.setState({
         currentFocus: 0,
@@ -644,7 +653,7 @@ describe("Controller tests", () => {
       const focusIndex = 0;
       const comp = shallow(<Controller />).instance();
       const parent = shallow(<VerticalParent />).instance();
-      const child = mount(<Child />).instance();
+      const child = shallow(<Child />).instance();
       comp.setState({ tree: [parent] });
       parent.setState({
         tree: [child, child]
@@ -661,7 +670,7 @@ describe("Controller tests", () => {
       const focusIndex = 0;
       const comp = shallow(<Controller />).instance();
       const parent = shallow(<VerticalParent />).instance();
-      const child = mount(<Child onBlur={onBlurMock} />).instance();
+      const child = shallow(<Child onBlur={onBlurMock} />).instance();
       comp.setState({ tree: [parent] });
       parent.setState({
         tree: [child, child]
@@ -682,7 +691,7 @@ describe("Controller tests", () => {
       const focusIndex = 0;
       const comp = shallow(<Controller />).instance();
       const parent = shallow(<VerticalParent />).instance();
-      const child = mount(<Child />).instance();
+      const child = shallow(<Child />).instance();
       comp.setState({ tree: [parent] });
       parent.setState({
         tree: [child, child]
@@ -1318,7 +1327,9 @@ describe("Controller tests", () => {
       const moveFocusInTreeMock = jest.fn();
       const direction = UP;
       const comp = shallow(<Controller />).instance();
-      const parent = shallow(<MatrixParent columns={10} rows={10} />).instance();
+      const parent = shallow(
+        <MatrixParent columns={10} rows={10} />
+      ).instance();
       parent.state = {
         columns: 10,
         rows: 10

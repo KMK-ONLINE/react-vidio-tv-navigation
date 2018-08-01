@@ -2,18 +2,9 @@
 
 import React from "react";
 import type { ChildrenArray, Component } from "react";
-import { ControllerContext } from "./controller";
 import { HORIZONTAL, VERTICAL, MATRIX } from "./const";
-
-const parentContext: ParentState = {
-  currentFocus: 0,
-  columns: 0,
-  rows: 0,
-  tree: [],
-  type: HORIZONTAL
-};
-
-export const ParentContext = React.createContext(parentContext);
+import { ParentContext } from "./parent_context";
+import { ControllerContext } from "./controller_context";
 
 export class ParentWithContext extends React.Component<
   ParentProps,
@@ -22,23 +13,60 @@ export class ParentWithContext extends React.Component<
   constructor(props: ParentProps) {
     super(props);
     this.currentFocus = 0;
+    this.addChildToTree = this.addChildToTree.bind(this);
+    this.deleteChildFromTree = this.deleteChildFromTree.bind(this);
+
     this.state = {
       tree: [],
       type: props.focusableType,
       rows: props.rows,
       columns: props.columns,
-      id: Math.random() * 1000000000
+      id: Math.random() * 1000000000,
+      addChildToTree: this.addChildToTree,
+      deleteChildFromTree: this.deleteChildFromTree
     };
   }
 
+  addChildToTree(child: ChildType): void {
+    this.state.tree.push(child);
+  }
+
+  deleteChildFromTree(child: ChildType): void {
+    const index = this.state.tree.indexOf(child);
+
+    if (index === this.currentFocus) {
+      this.state.tree.splice(index, 1);
+      this.currentFocus = index > 0 ? index - 1 : 0;
+      if (
+        this.hasFocusInController() &&
+        this.state.tree[this.currentFocus].props.onFocus
+      ) {
+        this.state.tree[this.currentFocus].props.onFocus();
+      }
+    } else {
+      if (index < this.currentFocus) {
+        if (this.state.tree[this.currentFocus].props.onBlur) {
+          this.state.tree[this.currentFocus].props.onBlur(this.currentFocus);
+        }
+        this.currentFocus = this.currentFocus - 1;
+        if (this.state.tree[this.currentFocus].props.onFocus) {
+          this.state.tree[this.currentFocus].props.onFocus(this.currentFocus);
+        }
+      }
+      this.state.tree.splice(index, 1);
+    }
+  }
+
+  hasFocusInController() {
+    return this.props.context.hasFocus(this);
+  }
+
   componentDidMount() {
-    if (this.props.context && this.props.context.addParentToTree)
-      this.props.context.addParentToTree(this);
+    this.props.context.addParentToTree(this);
   }
 
   componentWillUnmount() {
-    if (this.props.context && this.props.context.deleteParentFromTree)
-      this.props.context.deleteParentFromTree(this);
+    this.props.context.deleteParentFromTree(this);
   }
 
   render() {
@@ -55,13 +83,12 @@ export class ParentWithContext extends React.Component<
     );
   }
 }
+
 export class Parent extends React.Component<{}, ParentType> {
   render() {
     return (
       <ControllerContext.Consumer>
-        {value => {
-          return <ParentWithContext {...this.props} context={value} />;
-        }}
+        {state => <ParentWithContext {...this.props} context={state} />}
       </ControllerContext.Consumer>
     );
   }

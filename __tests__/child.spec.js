@@ -2,10 +2,11 @@ import React from "react";
 import { FocusableChild, Child } from "../src/child";
 import { shallow, mount } from "enzyme";
 
+jest.mock("../src/parent_context");
+
 describe("Child tests", () => {
   it("should render an FocusableChild", () => {
-    const props = { foo: "foo" };
-    const comp = mount(<Child props={props} />);
+    const comp = mount(<Child />);
     expect(comp.find(FocusableChild).length).toBe(1);
     comp.unmount();
   });
@@ -19,7 +20,9 @@ describe("Child tests", () => {
 });
 
 describe("FocusableChild test", () => {
-  const comp = shallow(<FocusableChild />);
+  const comp = shallow(<Child />)
+    .dive() //ParentContext
+    .dive(); //FocusableChild
 
   it("should assign focusable as className by default", () => {
     expect(comp.state().className).toBe("focusable");
@@ -27,29 +30,24 @@ describe("FocusableChild test", () => {
 
   it("should assign className with the className passed as a prop", () => {
     const className = "foo";
-    const comp = shallow(<FocusableChild className={className} />);
+    const comp = shallow(<Child className={className} />)
+      .dive() //ParentContext
+      .dive(); //FocusableChild
     expect(comp.state().className).toBe(className);
   });
+});
 
-  it("should calls addToParentTree", () => {
-    const spy = jest.spyOn(FocusableChild.prototype, "addToParentTree");
-    shallow(<FocusableChild />);
-    expect(spy).toHaveBeenCalled();
-    spy.mockReset();
-    spy.mockRestore();
+describe("When mounting", () => {
+  it("should calls addChildToTree", () => {
+    const comp = shallow(<Child />);
+    expect(comp.dive().props().context.addChildToTree).toHaveBeenCalled();
   });
+});
 
-  it("should add the component to the context's tree", () => {
-    const contextMock = {
-      tree: {
-        push() {}
-      }
-    };
-    const spy = jest.spyOn(contextMock.tree, "push");
-    shallow(<FocusableChild context={contextMock} />);
-    expect(spy).toHaveBeenCalled();
-    //TODO: test if it has been called with the instance of the component (this)
-    spy.mockReset();
-    spy.mockRestore();
+describe("When unmounting", () => {
+  it("should calls deleteChildFromTree", () => {
+    const comp = shallow(<Child />);
+    comp.unmount();
+    expect(comp.dive().props().context.deleteChildFromTree).toHaveBeenCalled();
   });
 });

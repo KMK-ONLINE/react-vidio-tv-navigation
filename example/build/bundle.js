@@ -694,6 +694,20 @@ var ReactSpatialNavigation = (function (exports) {
 	var POSITIVE = "positive";
 	var NEGATIVE = "negative";
 
+	var controllerContext = {
+	  addParentToTree: function addParentToTree() {
+	    throw new Error("addParentToTree method has to be implemented");
+	  },
+	  deleteParentFromTree: function deleteParentFromTree() {
+	    throw new Error("deleteParentFromTree has to be implemented");
+	  },
+	  hasFocus: function hasFocus() {
+	    throw new Error("hasFocus has to be implemented");
+	  }
+	};
+
+	var ControllerContext = react.createContext(controllerContext);
+
 	var classCallCheck = function (instance, Constructor) {
 	  if (!(instance instanceof Constructor)) {
 	    throw new TypeError("Cannot call a class as a function");
@@ -764,12 +778,6 @@ var ReactSpatialNavigation = (function (exports) {
 	  "13": ENTER
 	};
 
-	var controllerContext = {
-	  currentFocus: 0,
-	  tree: []
-	};
-	var ControllerContext = react.createContext(controllerContext);
-
 	var Controller = function (_React$Component) {
 	  inherits(Controller, _React$Component);
 
@@ -781,10 +789,12 @@ var ReactSpatialNavigation = (function (exports) {
 	    _this.currentFocus = 0;
 	    _this.addParentToTree = _this.addParentToTree.bind(_this);
 	    _this.deleteParentFromTree = _this.deleteParentFromTree.bind(_this);
+	    _this.hasFocus = _this.hasFocus.bind(_this);
 	    _this.state = {
 	      tree: [],
 	      addParentToTree: _this.addParentToTree,
-	      deleteParentFromTree: _this.deleteParentFromTree
+	      deleteParentFromTree: _this.deleteParentFromTree,
+	      hasFocus: _this.hasFocus
 	    };
 	    return _this;
 	  }
@@ -821,6 +831,11 @@ var ReactSpatialNavigation = (function (exports) {
 	    key: "getFocusState",
 	    value: function getFocusState() {
 	      return this.currentFocus;
+	    }
+	  }, {
+	    key: "hasFocus",
+	    value: function hasFocus(parent) {
+	      return this.state.tree[this.currentFocus] === parent;
 	    }
 	  }, {
 	    key: "handleFocus",
@@ -1099,11 +1114,16 @@ var ReactSpatialNavigation = (function (exports) {
 	}(react.Component);
 
 	var parentContext = {
-	  currentFocus: 0,
 	  columns: 0,
 	  rows: 0,
 	  tree: [],
-	  type: HORIZONTAL
+	  type: HORIZONTAL,
+	  addChildToTree: function addChildToTree() {
+	    throw new Error("addChildToTree method has to be implemented. It happens because ParentContext.Consumer has been used without the ParentContext.Provider");
+	  },
+	  deleteChildFromTree: function deleteChildFromTree() {
+	    throw new Error("deleteChildFromTree method has to be implemented. It happens because ParentContext.Consumer has been used without the ParentContext.Provider");
+	  }
 	};
 
 	var ParentContext = react.createContext(parentContext);
@@ -1117,25 +1137,64 @@ var ReactSpatialNavigation = (function (exports) {
 	    var _this = possibleConstructorReturn(this, (ParentWithContext.__proto__ || Object.getPrototypeOf(ParentWithContext)).call(this, props));
 
 	    _this.currentFocus = 0;
+	    _this.addChildToTree = _this.addChildToTree.bind(_this);
+	    _this.deleteChildFromTree = _this.deleteChildFromTree.bind(_this);
+
 	    _this.state = {
 	      tree: [],
 	      type: props.focusableType,
 	      rows: props.rows,
 	      columns: props.columns,
-	      id: Math.random() * 1000000000
+	      id: Math.random() * 1000000000,
+	      addChildToTree: _this.addChildToTree,
+	      deleteChildFromTree: _this.deleteChildFromTree
 	    };
 	    return _this;
 	  }
 
 	  createClass(ParentWithContext, [{
+	    key: "addChildToTree",
+	    value: function addChildToTree(child) {
+	      this.state.tree.push(child);
+	    }
+	  }, {
+	    key: "deleteChildFromTree",
+	    value: function deleteChildFromTree(child) {
+	      var index = this.state.tree.indexOf(child);
+
+	      if (index === this.currentFocus) {
+	        this.state.tree.splice(index, 1);
+	        this.currentFocus = index > 0 ? index - 1 : 0;
+	        if (this.hasFocusInController() && this.state.tree[this.currentFocus].props.onFocus) {
+	          this.state.tree[this.currentFocus].props.onFocus();
+	        }
+	      } else {
+	        if (index < this.currentFocus) {
+	          if (this.state.tree[this.currentFocus].props.onBlur) {
+	            this.state.tree[this.currentFocus].props.onBlur(this.currentFocus);
+	          }
+	          this.currentFocus = this.currentFocus - 1;
+	          if (this.state.tree[this.currentFocus].props.onFocus) {
+	            this.state.tree[this.currentFocus].props.onFocus(this.currentFocus);
+	          }
+	        }
+	        this.state.tree.splice(index, 1);
+	      }
+	    }
+	  }, {
+	    key: "hasFocusInController",
+	    value: function hasFocusInController() {
+	      return this.props.context.hasFocus(this);
+	    }
+	  }, {
 	    key: "componentDidMount",
 	    value: function componentDidMount() {
-	      if (this.props.context && this.props.context.addParentToTree) this.props.context.addParentToTree(this);
+	      this.props.context.addParentToTree(this);
 	    }
 	  }, {
 	    key: "componentWillUnmount",
 	    value: function componentWillUnmount() {
-	      if (this.props.context && this.props.context.deleteParentFromTree) this.props.context.deleteParentFromTree(this);
+	      this.props.context.deleteParentFromTree(this);
 	    }
 	  }, {
 	    key: "render",
@@ -1157,6 +1216,7 @@ var ReactSpatialNavigation = (function (exports) {
 	  }]);
 	  return ParentWithContext;
 	}(react.Component);
+
 	var Parent = function (_React$Component2) {
 	  inherits(Parent, _React$Component2);
 
@@ -1173,8 +1233,8 @@ var ReactSpatialNavigation = (function (exports) {
 	      return react.createElement(
 	        ControllerContext.Consumer,
 	        null,
-	        function (value) {
-	          return react.createElement(ParentWithContext, _extends({}, _this3.props, { context: value }));
+	        function (state) {
+	          return react.createElement(ParentWithContext, _extends({}, _this3.props, { context: state }));
 	        }
 	      );
 	    }
@@ -1264,9 +1324,19 @@ var ReactSpatialNavigation = (function (exports) {
 	      this.addToParentTree();
 	    }
 	  }, {
+	    key: "componentWillUnmount",
+	    value: function componentWillUnmount() {
+	      this.deleteFromParentTree();
+	    }
+	  }, {
 	    key: "addToParentTree",
 	    value: function addToParentTree() {
-	      if (this.props.context && this.props.context.tree) this.props.context.tree.push(this);
+	      this.props.context.addChildToTree(this);
+	    }
+	  }, {
+	    key: "deleteFromParentTree",
+	    value: function deleteFromParentTree() {
+	      this.props.context.deleteChildFromTree(this);
 	    }
 	  }, {
 	    key: "render",

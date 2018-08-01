@@ -21,7 +21,6 @@ declare type ParentType = {
 };
 
 declare type ParentState = {
-  currentFocus: number,
   tree: Array<ChildType>,
   type: FocusableType,
   columns: number,
@@ -39,7 +38,6 @@ declare type ParentProps = {
 };
 
 declare type ControllerState = {
-  currentFocus: number,
   tree: ParentType[]
 };
 
