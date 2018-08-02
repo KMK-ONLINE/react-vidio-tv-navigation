@@ -1,7 +1,8 @@
 export const controllerContext: ControllerState = {
   addParentToTree: jest.fn(),
   deleteParentFromTree: jest.fn(),
-  hasFocus: jest.fn()
+  hasFocus: jest.fn(),
+  findAnotherParent: jest.fn()
 };
 
 export const ControllerContext = {

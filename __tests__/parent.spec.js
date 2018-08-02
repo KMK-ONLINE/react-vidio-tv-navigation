@@ -184,6 +184,29 @@ describe("ParentWithContext tests", () => {
       });
     });
 
+    describe("when the deleted Child has the focus and it's the only child", () => {
+      const comp = mount(
+        <VerticalParent>
+          <Child />
+        </VerticalParent>
+      );
+
+      const parent = comp.find(ParentWithContext).instance();
+      const child = comp
+        .find(Child)
+        .first()
+        .instance();
+
+      parent.setState({ tree: [child] });
+      parent.currentFocus = 0;
+      parent.hasFocusInController = () => true;
+      parent.deleteChildFromTree(child);
+
+      it("executes findAnotherParent in order to move the focus to other parent since there are not children", () => {
+        expect(parent.props.context.findAnotherParent).toBeCalled();
+      });
+    });
+
     describe("when the deleted Child does not have the focus and the focus position is higher than current focus", () => {
       const onFocusMock = jest.fn();
       const onBlurMock = jest.fn();

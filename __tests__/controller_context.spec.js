@@ -29,4 +29,10 @@ describe("ControllerContext", () => {
       defaultContext.hasFocus();
     }).toThrow();
   });
+
+  it("findAnotherParent", () => {
+    expect(() => {
+      defaultContext.findAnotherParent();
+    }).toThrow();
+  });
 });

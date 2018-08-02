@@ -696,13 +696,17 @@ var ReactSpatialNavigation = (function (exports) {
 
 	var controllerContext = {
 	  addParentToTree: function addParentToTree() {
-	    throw new Error("addParentToTree method has to be implemented");
+	    throw new Error("addParentToTree method has to be implemented. It happens because ControllerContext.Provider is not used");
 	  },
 	  deleteParentFromTree: function deleteParentFromTree() {
-	    throw new Error("deleteParentFromTree has to be implemented");
+	    throw new Error("deleteParentFromTree has to be implemented. It happens because ControllerContext.Provider is not used");
 	  },
 	  hasFocus: function hasFocus() {
-	    throw new Error("hasFocus has to be implemented");
+	    throw new Error("hasFocus has to be implemented. It happens because ControllerContext.Provider is not used");
+	  },
+
+	  findAnotherParent: function findAnotherParent() {
+	    throw new Error("findAnotherParent has to be implemented. It happens because ControllerContext.Provider is not used");
 	  }
 	};
 
@@ -787,14 +791,12 @@ var ReactSpatialNavigation = (function (exports) {
 	    var _this = possibleConstructorReturn(this, (Controller.__proto__ || Object.getPrototypeOf(Controller)).call(this, props));
 
 	    _this.currentFocus = 0;
-	    _this.addParentToTree = _this.addParentToTree.bind(_this);
-	    _this.deleteParentFromTree = _this.deleteParentFromTree.bind(_this);
-	    _this.hasFocus = _this.hasFocus.bind(_this);
 	    _this.state = {
 	      tree: [],
-	      addParentToTree: _this.addParentToTree,
-	      deleteParentFromTree: _this.deleteParentFromTree,
-	      hasFocus: _this.hasFocus
+	      addParentToTree: _this.addParentToTree.bind(_this),
+	      deleteParentFromTree: _this.deleteParentFromTree.bind(_this),
+	      hasFocus: _this.hasFocus.bind(_this),
+	      findAnotherParent: _this.findAnotherParent.bind(_this)
 	    };
 	    return _this;
 	  }
@@ -803,6 +805,9 @@ var ReactSpatialNavigation = (function (exports) {
 	    key: "onKeyDown",
 	    value: function onKeyDown(evt) {
 	      var keymap = keyMapping[evt.keyCode];
+
+	      if (this.currentFocus === null) return null;
+
 	      if (keymap === ENTER) {
 	        return this.handleEnter();
 	      } else {
@@ -849,6 +854,22 @@ var ReactSpatialNavigation = (function (exports) {
 	      if (tree[index].state.type === VERTICAL) this.handleFocusInVerticalParent(direction);
 
 	      if (tree[index].state.type === MATRIX) this.handleFocusInMatrixParent(direction);
+	    }
+	  }, {
+	    key: "findAnotherParent",
+	    value: function findAnotherParent() {
+	      if (this.canMoveToNextParent()) {
+	        this.moveFocusInTree(POSITIVE);
+	      } else if (this.canMoveToPreviousParent()) {
+	        this.moveFocusInTree(NEGATIVE);
+	      } else {
+	        this.setEmptyState();
+	      }
+	    }
+	  }, {
+	    key: "setEmptyState",
+	    value: function setEmptyState() {
+	      this.currentFocus = null;
 	    }
 	  }, {
 	    key: "canMoveToPreviousParent",
@@ -1056,7 +1077,7 @@ var ReactSpatialNavigation = (function (exports) {
 	      if (parent.props.onFocus) {
 	        parent.props.onFocus(focusIndex);
 	      }
-	      if (parent.state.tree[focusIndex].props.onFocus) {
+	      if (parent.state.tree[focusIndex] && parent.state.tree[focusIndex].props.onFocus) {
 	        parent.state.tree[focusIndex].props.onFocus();
 	      }
 	      parent.currentFocus = focusIndex;
@@ -1067,7 +1088,7 @@ var ReactSpatialNavigation = (function (exports) {
 	      if (parent.props.onBlur) {
 	        parent.props.onBlur(focusIndex);
 	      }
-	      if (parent.state.tree[focusIndex].props.onBlur) {
+	      if (parent.state.tree[focusIndex] && parent.state.tree[focusIndex].props.onBlur) {
 	        parent.state.tree[focusIndex].props.onBlur();
 	      }
 	      parent.currentFocus = focusIndex;
@@ -1164,6 +1185,11 @@ var ReactSpatialNavigation = (function (exports) {
 
 	      if (index === this.currentFocus) {
 	        this.state.tree.splice(index, 1);
+
+	        if (this.state.tree.length === 0 && this.hasFocusInController()) {
+	          return this.props.context.findAnotherParent();
+	        }
+
 	        this.currentFocus = index > 0 ? index - 1 : 0;
 	        if (this.hasFocusInController() && this.state.tree[this.currentFocus].props.onFocus) {
 	          this.state.tree[this.currentFocus].props.onFocus();

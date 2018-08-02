@@ -40,19 +40,20 @@ export default class Controller extends React.Component {
   constructor(props: ControllerProps) {
     super(props);
     this.currentFocus = 0;
-    this.addParentToTree = this.addParentToTree.bind(this);
-    this.deleteParentFromTree = this.deleteParentFromTree.bind(this);
-    this.hasFocus = this.hasFocus.bind(this);
     this.state = {
       tree: [],
-      addParentToTree: this.addParentToTree,
-      deleteParentFromTree: this.deleteParentFromTree,
-      hasFocus: this.hasFocus
+      addParentToTree: this.addParentToTree.bind(this),
+      deleteParentFromTree: this.deleteParentFromTree.bind(this),
+      hasFocus: this.hasFocus.bind(this),
+      findAnotherParent: this.findAnotherParent.bind(this)
     };
   }
 
   onKeyDown(evt: KeyboardEvent) {
     const keymap = keyMapping[evt.keyCode];
+
+    if (this.currentFocus === null) return null;
+
     if (keymap === ENTER) {
       return this.handleEnter();
     } else {
@@ -95,6 +96,20 @@ export default class Controller extends React.Component {
 
     if (tree[index].state.type === MATRIX)
       this.handleFocusInMatrixParent(direction);
+  }
+
+  findAnotherParent(): void {
+    if (this.canMoveToNextParent()) {
+      this.moveFocusInTree(POSITIVE);
+    } else if (this.canMoveToPreviousParent()) {
+      this.moveFocusInTree(NEGATIVE);
+    } else {
+      this.setEmptyState();
+    }
+  }
+
+  setEmptyState(): void {
+    this.currentFocus = null;
   }
 
   canMoveToPreviousParent(): boolean {
@@ -313,7 +328,10 @@ export default class Controller extends React.Component {
     if (parent.props.onFocus) {
       parent.props.onFocus(focusIndex);
     }
-    if (parent.state.tree[focusIndex].props.onFocus) {
+    if (
+      parent.state.tree[focusIndex] &&
+      parent.state.tree[focusIndex].props.onFocus
+    ) {
       parent.state.tree[focusIndex].props.onFocus();
     }
     parent.currentFocus = focusIndex;
@@ -323,7 +341,10 @@ export default class Controller extends React.Component {
     if (parent.props.onBlur) {
       parent.props.onBlur(focusIndex);
     }
-    if (parent.state.tree[focusIndex].props.onBlur) {
+    if (
+      parent.state.tree[focusIndex] &&
+      parent.state.tree[focusIndex].props.onBlur
+    ) {
       parent.state.tree[focusIndex].props.onBlur();
     }
     parent.currentFocus = focusIndex;

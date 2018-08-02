@@ -36,6 +36,11 @@ export class ParentWithContext extends React.Component<
 
     if (index === this.currentFocus) {
       this.state.tree.splice(index, 1);
+
+      if (this.state.tree.length === 0 && this.hasFocusInController()) {
+        return this.props.context.findAnotherParent();
+      }
+
       this.currentFocus = index > 0 ? index - 1 : 0;
       if (
         this.hasFocusInController() &&
