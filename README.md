@@ -1,4 +1,4 @@
-# React Spatial Navigation
+# React Focus Navigation
 
 This project aims to build a navigation tool based on React. 
 
