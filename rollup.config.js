@@ -9,7 +9,7 @@ export default {
   output: {
     file: "build/bundle.js",
     format: "umd",
-    name: "react-spatial-navigation"
+    name: "react-focus-navigation"
   },
   external: ["React"],
   plugins: [
