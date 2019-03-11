@@ -51,6 +51,7 @@
     "install": "^0.12.1",
     "jest": "^23.3.0",
     "prettier": "^1.13.7",
+    "react": "^16.8.4",
     "react-dom": "^16.4.1",
     "react-test-renderer": "^16.4.1",
     "rollup": "^0.61.2",
