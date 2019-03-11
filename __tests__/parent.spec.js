@@ -42,6 +42,36 @@ describe("Vertical Parent tests", () => {
   });
 });
 
+describe("Vertical Parent currentFocus props tests", () => {
+  it("Parent contains currentFocus props", () => {
+    const wrapper = mount(
+      <VerticalParent currentFocus="1">
+        <Item />
+        <Item />
+      </VerticalParent>
+    );
+
+    expect(wrapper.find(ParentWithContext).instance().currentFocus).toBe(1);
+    expect(wrapper.find(Parent).props().currentFocus).toBe('1');
+    wrapper.unmount();
+  });
+});
+
+ describe("Horizontal Parent currentFocus props tests", () => {
+  it("Parent contains currentFocus props", () => {
+    const wrapper = mount(
+      <HorizontalParent currentFocus="1">
+        <Item />
+        <Item />
+      </HorizontalParent>
+    );
+
+    expect(wrapper.find(ParentWithContext).instance().currentFocus).toBe(1);
+    expect(wrapper.find(Parent).props().currentFocus).toBe('1');
+    wrapper.unmount();
+  });
+});
+
 describe("Horizontal Parent tests", () => {
   const wrapper = shallow(<HorizontalParent />);
 

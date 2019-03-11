@@ -101,7 +101,7 @@ class App extends React.Component {
           Also, by clicking up or down, it moves to the next or previous parent
           ( if present, if not, nothing happens )
         </p>
-        <HorizontalParent className={"horizontal-columns"} withFocus>
+        <HorizontalParent className={"horizontal-columns"} currentFocus='1' withFocus>
           <Item />
           <Item />
         </HorizontalParent>
