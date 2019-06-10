@@ -12,6 +12,7 @@ export class ParentWithContext extends React.Component<
 > {
   constructor(props: ParentProps) {
     super(props);
+    this.forceFocus = this.props.forceFocus ? parseInt(this.props.forceFocus) : -1;
     this.currentFocus = this.props.currentFocus ? parseInt(this.props.currentFocus) : 0;
     this.addChildToTree = this.addChildToTree.bind(this);
     this.deleteChildFromTree = this.deleteChildFromTree.bind(this);

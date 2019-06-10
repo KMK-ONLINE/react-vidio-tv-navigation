@@ -9,7 +9,7 @@ export default {
   output: {
     file: "build/bundle.js",
     format: "umd",
-    name: "react-focus-navigation"
+    name: "react-vidio-tv-navigation"
   },
   external: ["React"],
   plugins: [

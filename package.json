@@ -1,6 +1,6 @@
 {
   "name": "react-vidio-tv-navigation",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A react based implementation of the spatial navigation",
   "main": "build/bundle.js",
   "directories": {
@@ -17,9 +17,9 @@
     "navigation",
     "focus"
   ],
-  "homepage": "https://github.com/wuakitv/react-focus-navigation",
+  "homepage": "https://github.com/KMK-ONLINE/react-vidio-tv-navigation",
   "bugs": {
-    "url": "https://github.com/wuakitv/react-focus-navigation/issues"
+    "url": "https://github.com/KMK-ONLINE/react-vidio-tv-navigation/issues"
   },
   "license": "ISC",
   "peerDependencies": {
@@ -51,7 +51,6 @@
     "install": "^0.12.1",
     "jest": "^23.3.0",
     "prettier": "^1.13.7",
-    "react": "^16.8.4",
     "react-dom": "^16.4.1",
     "react-test-renderer": "^16.4.1",
     "rollup": "^0.61.2",
@@ -61,6 +60,6 @@
     "rollup-plugin-replace": "^2.0.0"
   },
   "dependencies": {
-    "enzyme-react-adapter-future": "npm:enzyme-react-adapter-future"
+    "react": "16.4.1"
   }
 }

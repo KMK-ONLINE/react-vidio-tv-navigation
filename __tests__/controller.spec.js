@@ -1099,6 +1099,37 @@ describe("Controller tests", () => {
           expect(moveFocusInTreeMock.mock.calls[0][0]).toBe(NEGATIVE);
         });
       });
+
+      describe("and it's not in the first parent and it's in the first element with force focus", () => {
+        const moveFocusInTreeMock = jest.fn();
+        const currentFocus = 1;
+        const direction = LEFT;
+        const comp = shallow(<Controller />).instance();
+        const parent1 = shallow(<VerticalParent />).instance();
+        const parent2 = shallow(<HorizontalParent />).instance();
+        const children = shallow(<Child />).instance();
+
+        parent1.state = {
+          tree: [children, children]
+        };
+        parent1.currentFocus = 0;
+        parent2.state = {
+          tree: [children, children]
+        };
+        parent2.currentFocus = 0;
+        parent2.forceFocus = 0;
+        comp.setState({
+          tree: [parent1, parent2]
+        });
+        comp.currentFocus = currentFocus;
+        comp.moveFocusInTree = moveFocusInTreeMock;
+        comp.handleFocusInHorizontalParent(direction);
+
+        it("moves the focus to the next parent", () => {
+          expect(moveFocusInTreeMock).toHaveBeenCalled();
+          expect(moveFocusInTreeMock.mock.calls[0][0]).toBe(0);
+        });
+      });
     });
   });
 

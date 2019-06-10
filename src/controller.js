@@ -139,6 +139,13 @@ export default class Controller extends React.Component {
     );
   }
 
+  isForceFocused() {
+    const { tree } = this.state;
+    const currentFocus = this.getFocusState();
+
+    return tree[currentFocus].forceFocus >= 0;
+  }
+
   handleFocusInVerticalParent(direction: Direction) {
     const { tree } = this.state;
     const currentFocus = this.getFocusState();
@@ -182,7 +189,8 @@ export default class Controller extends React.Component {
 
     if (direction === LEFT) {
       if (this.focusInParentOnInitEdge() && this.canMoveToPreviousParent()) {
-        this.moveFocusInTree(NEGATIVE);
+        const nextFocus = this.isForceFocused() ? 0 : NEGATIVE; 
+        this.moveFocusInTree(nextFocus);
       } else {
         this.moveFocusInParent(tree[currentFocus], NEGATIVE);
       }
@@ -275,7 +283,7 @@ export default class Controller extends React.Component {
       }
     });
   }
-
+  
   moveFocusInParent(
     parent: ParentType,
     direction: DEFAULT | NEGATIVE | POSITIVE,
@@ -312,11 +320,14 @@ export default class Controller extends React.Component {
     }
   }
 
-  moveFocusInTree(direction: NEGATIVE | POSITIVE) {
+  moveFocusInTree(direction: any) {
     const { tree } = this.state;
     const currentFocus = this.getFocusState();
     const nextFocus =
-      direction == NEGATIVE ? currentFocus - 1 : currentFocus + 1;
+      isNaN(direction)
+        ? direction == NEGATIVE ? currentFocus - 1 : currentFocus + 1
+        : direction
+
     this.quitFocusInParent(tree[currentFocus], tree[currentFocus].currentFocus);
     this.setFocusState(nextFocus, nextFocus => {
       const parent = this.state.tree[nextFocus];
