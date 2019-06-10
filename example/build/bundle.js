@@ -796,7 +796,8 @@ var ReactSpatialNavigation = (function (exports) {
 	      addParentToTree: _this.addParentToTree.bind(_this),
 	      deleteParentFromTree: _this.deleteParentFromTree.bind(_this),
 	      hasFocus: _this.hasFocus.bind(_this),
-	      findAnotherParent: _this.findAnotherParent.bind(_this)
+	      findAnotherParent: _this.findAnotherParent.bind(_this),
+	      lastParent: -1
 	    };
 	    return _this;
 	  }
@@ -914,7 +915,9 @@ var ReactSpatialNavigation = (function (exports) {
 	  }, {
 	    key: "handleFocusInVerticalParent",
 	    value: function handleFocusInVerticalParent(direction) {
-	      var tree = this.state.tree;
+	      var _state = this.state,
+	          tree = _state.tree,
+	          lastParent = _state.lastParent;
 
 	      var currentFocus = this.getFocusState();
 
@@ -923,7 +926,8 @@ var ReactSpatialNavigation = (function (exports) {
 	      }
 
 	      if (direction === RIGHT && this.canMoveToNextParent()) {
-	        this.moveFocusInTree(POSITIVE);
+	        var focus = lastParent > -1 ? lastParent : POSITIVE;
+	        this.moveFocusInTree(focus);
 	      }
 
 	      if (direction === UP) {
@@ -960,6 +964,9 @@ var ReactSpatialNavigation = (function (exports) {
 	      if (direction === LEFT) {
 	        if (this.focusInParentOnInitEdge() && this.canMoveToPreviousParent()) {
 	          var nextFocus = this.isForceFocused() ? 0 : NEGATIVE;
+	          if (this.isForceFocused()) {
+	            this.setState({ lastParent: currentFocus });
+	          }
 	          this.moveFocusInTree(nextFocus);
 	        } else {
 	          this.moveFocusInParent(tree[currentFocus], NEGATIVE);
@@ -1547,7 +1554,7 @@ var ReactSpatialNavigation = (function (exports) {
 	            ),
 	            react.createElement(
 	              HorizontalParent,
-	              { className: "horizontal-columns-total" },
+	              { forceFocus: "0", className: "horizontal-columns-total" },
 	              react.createElement(Item, null),
 	              react.createElement(
 	                "span",

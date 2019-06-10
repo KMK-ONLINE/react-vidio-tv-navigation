@@ -77,7 +77,7 @@ class App extends React.Component {
               </span>
               <Item />
             </HorizontalParent>
-            <HorizontalParent className={"horizontal-columns-total"}>
+            <HorizontalParent forceFocus="0" className={"horizontal-columns-total"}>
               <Item />
               <span className="focusable">
                 <p> I am not allowed to be focused </p>

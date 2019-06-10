@@ -45,7 +45,8 @@ export default class Controller extends React.Component {
       addParentToTree: this.addParentToTree.bind(this),
       deleteParentFromTree: this.deleteParentFromTree.bind(this),
       hasFocus: this.hasFocus.bind(this),
-      findAnotherParent: this.findAnotherParent.bind(this)
+      findAnotherParent: this.findAnotherParent.bind(this),
+      lastParent: -1 
     };
   }
 
@@ -147,7 +148,7 @@ export default class Controller extends React.Component {
   }
 
   handleFocusInVerticalParent(direction: Direction) {
-    const { tree } = this.state;
+    const { tree, lastParent } = this.state;
     const currentFocus = this.getFocusState();
 
     if (direction === LEFT && this.canMoveToPreviousParent()) {
@@ -155,7 +156,8 @@ export default class Controller extends React.Component {
     }
 
     if (direction === RIGHT && this.canMoveToNextParent()) {
-      this.moveFocusInTree(POSITIVE);
+      const focus = lastParent > -1 ? lastParent : POSITIVE;
+      this.moveFocusInTree(focus);
     }
 
     if (direction === UP) {
@@ -190,6 +192,9 @@ export default class Controller extends React.Component {
     if (direction === LEFT) {
       if (this.focusInParentOnInitEdge() && this.canMoveToPreviousParent()) {
         const nextFocus = this.isForceFocused() ? 0 : NEGATIVE; 
+        if(this.isForceFocused()) {
+          this.setState({ lastParent: currentFocus});
+        }
         this.moveFocusInTree(nextFocus);
       } else {
         this.moveFocusInParent(tree[currentFocus], NEGATIVE);

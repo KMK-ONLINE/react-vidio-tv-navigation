@@ -333,7 +333,8 @@
 	      addParentToTree: _this.addParentToTree.bind(_this),
 	      deleteParentFromTree: _this.deleteParentFromTree.bind(_this),
 	      hasFocus: _this.hasFocus.bind(_this),
-	      findAnotherParent: _this.findAnotherParent.bind(_this)
+	      findAnotherParent: _this.findAnotherParent.bind(_this),
+	      lastParent: -1
 	    };
 	    return _this;
 	  }
@@ -451,7 +452,9 @@
 	  }, {
 	    key: "handleFocusInVerticalParent",
 	    value: function handleFocusInVerticalParent(direction) {
-	      var tree = this.state.tree;
+	      var _state = this.state,
+	          tree = _state.tree,
+	          lastParent = _state.lastParent;
 
 	      var currentFocus = this.getFocusState();
 
@@ -460,7 +463,8 @@
 	      }
 
 	      if (direction === RIGHT && this.canMoveToNextParent()) {
-	        this.moveFocusInTree(POSITIVE);
+	        var focus = lastParent > -1 ? lastParent : POSITIVE;
+	        this.moveFocusInTree(focus);
 	      }
 
 	      if (direction === UP) {
@@ -497,6 +501,9 @@
 	      if (direction === LEFT) {
 	        if (this.focusInParentOnInitEdge() && this.canMoveToPreviousParent()) {
 	          var nextFocus = this.isForceFocused() ? 0 : NEGATIVE;
+	          if (this.isForceFocused()) {
+	            this.setState({ lastParent: currentFocus });
+	          }
 	          this.moveFocusInTree(nextFocus);
 	        } else {
 	          this.moveFocusInParent(tree[currentFocus], NEGATIVE);

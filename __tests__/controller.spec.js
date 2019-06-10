@@ -835,6 +835,35 @@ describe("Controller tests", () => {
       });
     });
 
+    describe("When direction is RIGHT and lastParent > 0", () => {
+      const quitFocusInParentMock = jest.fn();
+      const moveFocusInParentMock = jest.fn();
+      const currentFocus = 0;
+      const direction = RIGHT;
+      const comp = shallow(<Controller />).instance();
+      const parent = shallow(<VerticalParent />).instance();
+      comp.setState({
+        tree: [parent, parent, parent],
+        lastParent: 2
+      });
+      comp.currentFocus = currentFocus;
+      comp.quitFocusInParent = quitFocusInParentMock;
+      comp.moveFocusInParent = moveFocusInParentMock;
+      comp.handleFocusInVerticalParent(direction);
+
+      it("quits the focus of the current element", () => {
+        expect(quitFocusInParentMock).toHaveBeenCalled();
+      });
+
+      it("updates the state with the new focus", () => {
+        expect(comp.currentFocus).toBe(currentFocus + 2);
+      });
+
+      it("moves the focus to the next child", () => {
+        expect(moveFocusInParentMock).toHaveBeenCalled();
+      });
+    });
+
     describe("When direction is DOWN", () => {
       describe("and it's not in the last element of the tree and it's not the final parent", () => {
         const moveFocusInParentMock = jest.fn();
